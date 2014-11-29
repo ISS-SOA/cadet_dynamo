@@ -88,7 +88,6 @@ class CadetService < Sinatra::Base
       req = JSON.parse(body)
       logger.info req
     rescue Exception => e
-      puts e.message
       halt 400
     end
 
