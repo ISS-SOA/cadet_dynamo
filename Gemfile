@@ -4,11 +4,6 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'codebadges'
 gem 'json'
-gem 'httparty'
-
-gem 'sinatra-flash'
-gem 'haml'
-gem 'tilt'
 
 gem 'activerecord'
 gem 'sinatra-activerecord'

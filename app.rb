@@ -10,10 +10,7 @@ require 'httparty'
 
 ##
 # Simple version of CodeCadetApp from https://github.com/ISS-SOA/codecadet
-class CodecadetApp < Sinatra::Base
-  enable :sessions
-  register Sinatra::Flash
-  use Rack::MethodOverride
+class CadetService < Sinatra::Base
 
   configure :production, :development do
     enable :logging
@@ -22,8 +19,6 @@ class CodecadetApp < Sinatra::Base
   configure :development do
     set :session_secret, "something"    # ignore if not using shotgun in development
   end
-
-  API_BASE_URI = 'http://localhost:9393'
 
   helpers do
     def user
@@ -66,98 +61,17 @@ class CodecadetApp < Sinatra::Base
   end
 
   get '/' do
-    haml :home
+    'CadetService api/v2 is up and working at /api/v2/'
   end
-
-  get '/cadet' do
-    @username = params[:username]
-    if @username
-      redirect "/cadet/#{@username}"
-      return nil
-    end
-
-    haml :cadet
-  end
-
-  get '/cadet/:username' do
-    @cadet = user
-    @username = params[:username]
-
-    if @username && @cadet.nil?
-      flash[:notice] = 'username not found' if @cadet.nil?
-      redirect '/cadet'
-      return nil
-    end
-
-    haml :cadet
-  end
-
-  get '/tutorials' do
-    @action = :create
-    haml :tutorials
-  end
-
-  post '/tutorials' do
-    request_url = "#{API_BASE_URI}/api/v2/tutorials"
-    usernames = params[:usernames].split("\r\n")
-    badges = params[:badges].split("\r\n")
-    params_h = {
-      usernames: usernames,
-      badges: badges
-    }
-
-    options =  {  body: params_h.to_json,
-                  headers: { 'Content-Type' => 'application/json' }
-               }
-
-    result = HTTParty.post(request_url, options)
-
-    if (result.code != 200)
-      flash[:notice] = 'usernames not found'
-      redirect '/tutorials'
-      return nil
-    end
-
-    id = result.request.last_uri.path.split('/').last
-    session[:result] = result.to_json
-    session[:usernames] = usernames
-    session[:badges] = badges
-    session[:action] = :create
-    redirect "/tutorials/#{id}"
-  end
-
-  get '/tutorials/:id' do
-    if session[:action] == :create
-      @results = JSON.parse(session[:result])
-      @usernames = session[:usernames]
-      @badges = session[:badges]
-    else
-      request_url = "#{API_BASE_URI}/api/v2/tutorials/#{params[:id]}"
-      options =  { headers: { 'Content-Type' => 'application/json' } }
-      result = HTTParty.get(request_url, options)
-      @results = result
-    end
-
-    @id = params[:id]
-    @action = :update
-    haml :tutorials
-  end
-
-  delete '/tutorials/:id' do
-    request_url = "#{API_BASE_URI}/api/v2/tutorials/#{params[:id]}"
-    result = HTTParty.delete(request_url)
-    flash[:notice] = 'record of tutorial deleted'
-    redirect '/tutorials'
-  end
-
 
   # API handlers
-  get '/api/v1/?' do
+  get '/api/v1/*' do
     'Simplecadet api/v2 is deprecated: please use <a href="/api/v2/">api/v2</a>'
+    halt 400
   end
 
   get '/api/v2/?' do
-    'Simplecadet api/v2 is up and working'
+    'CadetService api/v2 is up and working'
   end
 
   get '/api/v2/cadet/:username.json' do

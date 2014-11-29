@@ -1,7 +1,5 @@
-# SimpleCadet Webservice
-[ ![Codeship Status for ISS-SOA/simple_cadet](https://codeship.io/projects/e1d4f690-44bc-0132-a4ed-52edbda4e693/status?branch=master)](https://codeship.io/projects/44861)
-
-A simple version of [chenlizhan](https://github.com/ChenLiZhan)'s [codecadet](https://github.com/ISS-SOA/codecadet) web application and service.
+# CadetService: an API for accesing Codecademy data
+<!-- [ ![Codeship Status for ISS-SOA/simple_cadet](https://codeship.io/projects/e1d4f690-44bc-0132-a4ed-52edbda4e693/status?branch=master)](https://codeship.io/projects/44861) -->
 
 API v2 Routes:
 - GET /
@@ -17,3 +15,6 @@ API v2 Routes:
 - GET /api/v2/tutorials/:id
   - takes: id # (1,2,3, etc.)
   - returns: json of missing badges
+- DELETE /api/v2/tutorials/:id
+  - takes: id # (1,2,3, etc.) of query
+  - returns 200 OK for success
