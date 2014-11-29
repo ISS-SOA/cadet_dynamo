@@ -45,9 +45,9 @@ describe 'CadetService Stories' do
 
       # Check if request parameters are stored in ActiveRecord data store
       tut_id = next_location.scan(/tutorials\/(\d+)/).flatten[0].to_i
-      save_tutorial = Tutorial.find(tut_id)
-      JSON.parse(save_tutorial[:usernames]).must_equal body[:usernames]
-      JSON.parse(save_tutorial[:badges]).must_include body[:badges][0]
+      saved_tutorial = Tutorial.find(tut_id)
+      JSON.parse(saved_tutorial[:usernames]).must_equal body[:usernames]
+      JSON.parse(saved_tutorial[:badges]).must_include body[:badges][0]
 
       # Check if redirect works
       follow_redirect!
