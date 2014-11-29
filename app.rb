@@ -3,11 +3,6 @@ require 'codebadges'
 require 'json'
 require_relative 'model/tutorial'
 
-require 'haml'
-require 'sinatra/flash'
-
-require 'httparty'
-
 ##
 # Simple version of CodeCadetApp from https://github.com/ISS-SOA/codecadet
 class CadetService < Sinatra::Base
