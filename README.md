@@ -1,5 +1,5 @@
 # CadetService: an API for accesing Codecademy data
-<!-- [ ![Codeship Status for ISS-SOA/simple_cadet](https://codeship.io/projects/e1d4f690-44bc-0132-a4ed-52edbda4e693/status?branch=master)](https://codeship.io/projects/44861) -->
+[ ![Codeship Status for ISS-SOA/cadet_service](https://codeship.com/projects/9ad845e0-5a86-0132-729a-46545b4ba6c4/status)](https://codeship.com/projects/50387)
 
 API v2 Routes:
 - GET /
