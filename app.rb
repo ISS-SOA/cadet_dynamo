@@ -53,6 +53,14 @@ class CadetService < Sinatra::Base
       request_path = path_info.split '/'
       request_path[1] == path
     end
+
+    def new_tutorial(req)
+      tutorial = Tutorial.new
+      tutorial.description = req['description'].to_json
+      tutorial.usernames = req['usernames'].to_json
+      tutorial.badges = req['badges'].to_json
+      tutorial
+    end
   end
 
   get '/' do
@@ -60,9 +68,9 @@ class CadetService < Sinatra::Base
   end
 
   # API handlers
-  get '/api/v1/*' do
+  get '/api/v1/?*' do
+    status 400
     'Simplecadet api/v2 is deprecated: please use <a href="/api/v2/">api/v2</a>'
-    halt 400
   end
 
   get '/api/v2/?' do
@@ -75,12 +83,15 @@ class CadetService < Sinatra::Base
   end
 
   delete '/api/v2/tutorials/:id' do
-    tutorial = Tutorial.destroy(params[:id])
+    begin
+      Tutorial.destroy(params[:id])
+    rescue
+      halt 404
+    end
   end
 
   post '/api/v2/tutorials' do
     content_type :json
-
     body = request.body.read
     logger.info body
 
@@ -91,11 +102,7 @@ class CadetService < Sinatra::Base
       halt 400
     end
 
-    tutorial = Tutorial.new
-    tutorial.description = req['description'].to_json
-    tutorial.usernames = req['usernames'].to_json
-    tutorial.badges = req['badges'].to_json
-
+    tutorial = new_tutorial(req)
     if tutorial.save
       redirect "/api/v2/tutorials/#{tutorial.id}"
     end

@@ -12,7 +12,7 @@ describe 'CadetService Stories' do
     end
   end
 
-  describe 'Getting cadet information' do
+  describe 'Getting single user information' do
     it 'should return their badges' do
       get '/api/v2/cadet/soumya.ray.json'
       last_response.must_be :ok?
@@ -24,7 +24,7 @@ describe 'CadetService Stories' do
     end
   end
 
-  describe 'Checking users for badges' do
+  describe 'Checking multiple users' do
     before do
       Tutorial.delete_all
     end
@@ -75,6 +75,33 @@ describe 'CadetService Stories' do
 
       post '/api/v2/tutorials', body, header
       last_response.must_be :bad_request?
+    end
+
+
+    it 'should be able to delete a previous query' do
+      header = { 'CONTENT_TYPE' => 'application/json' }
+      body = {
+        description: 'Check valid users and badges',
+        usernames: ['soumya.ray', 'chenlizhan'],
+        badges: ['Object-Oriented Programming II']
+      }
+
+      # Check redirect URL from post request
+      post '/api/v2/tutorials', body.to_json, header
+      last_response.must_be :redirect?
+      next_location = last_response.location
+      next_location.must_match /api\/v2\/tutorials\/\d+/
+
+      # Check if request parameters are stored in ActiveRecord data store
+      tut_id = next_location.scan(/tutorials\/(\d+)/).flatten[0].to_i
+      delete "/api/v2/tutorials/#{tut_id}"
+      last_response.must_be :ok?
+    end
+
+
+    it 'should report error if deleting an unknown entry' do
+      delete "/api/v2/tutorials/55555"
+      last_response.must_be :not_found?
     end
   end
 end
