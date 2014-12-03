@@ -1,4 +1,4 @@
-# CadetService: an API for accesing Codecademy data
+# CadetService: an API for accessing Codecademy data
 [ ![Codeship Status for ISS-SOA/cadet_service](https://codeship.com/projects/9ad845e0-5a86-0132-729a-46545b4ba6c4/status)](https://codeship.com/projects/50387)
 
 API v2 Routes:
