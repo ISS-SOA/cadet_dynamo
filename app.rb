@@ -4,8 +4,10 @@ require 'json'
 require_relative 'model/tutorial'
 
 ##
-# Simple version of CodeCadetApp from https://github.com/ISS-SOA/codecadet
-class CadetService < Sinatra::Base
+# Fork of CadetService, using DynamoDB instead of Postgres
+#
+# - config: ENV vars AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
+class CadetDynamo < Sinatra::Base
 
   configure :production, :development do
     enable :logging
@@ -13,14 +15,6 @@ class CadetService < Sinatra::Base
 
   configure :development do
     set :session_secret, "something"    # ignore if not using shotgun in development
-  end
-
-  configure do
-    AWS.config(
-      access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-      secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
-      region: ENV['AWS_REGION']
-    )
   end
 
   helpers do
@@ -65,17 +59,17 @@ class CadetService < Sinatra::Base
   end
 
   get '/' do
-    'CadetService api/v2 is up and working at /api/v2/'
+    'CadetDynamo api/v2 is up and working at /api/v2/'
   end
 
   # API handlers
   get '/api/v1/?*' do
     status 400
-    'Simplecadet api/v1 is deprecated: please use <a href="/api/v2/">api/v2</a>'
+    'CadetDynamo api/v1 is deprecated: please use <a href="/api/v2/">#{request.host}/api/v2/</a>'
   end
 
   get '/api/v2/?' do
-    'CadetService /api/v2 is up and working'
+    'CadetDynamo /api/v2 is up and working'
   end
 
   get '/api/v2/cadet/:username.json' do
@@ -85,7 +79,8 @@ class CadetService < Sinatra::Base
 
   delete '/api/v2/tutorials/:id' do
     begin
-      Tutorial.destroy(params[:id])
+      #Tutorial.destroy(params[:id])
+      Tutorial.find(params[:id]).delete
     rescue
       halt 404
     end
