@@ -15,6 +15,14 @@ class CadetService < Sinatra::Base
     set :session_secret, "something"    # ignore if not using shotgun in development
   end
 
+  configure do
+    AWS.config(
+      access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+      secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
+      region: ENV['AWS_REGION']
+    )
+  end
+
   helpers do
     def user
       username = params[:username]

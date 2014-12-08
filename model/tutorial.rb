@@ -1,6 +1,7 @@
-require 'sinatra'
-require 'sinatra/activerecord'
-require_relative '../config/environments'
+require 'aws-sdk'
 
-class Tutorial < ActiveRecord::Base
+class Tutorial < AWS::Record::HashModel
+  string_attr :description
+  string_attr :usernames
+  string_attr :badges
 end
