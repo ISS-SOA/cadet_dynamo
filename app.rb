@@ -79,8 +79,7 @@ class CadetDynamo < Sinatra::Base
 
   delete '/api/v2/tutorials/:id' do
     begin
-      #Tutorial.destroy(params[:id])
-      Tutorial.find(params[:id]).delete
+      Tutorial.destroy(params[:id])
     rescue
       halt 404
     end
