@@ -1,6 +1,7 @@
 require 'aws-sdk'
 
 class Tutorial < AWS::Record::HashModel
+  integer_attr :id
   string_attr :description
   string_attr :usernames
   string_attr :badges
