@@ -13,7 +13,7 @@ namespace :db do
   desc "Create database"
   task :migrate do
     begin
-      Tutorial.create_table(5,6)
+      Tutorial.create_table(5,6, :hash_key => { :id => :number })
     rescue AWS::DynamoDB::Errors::ResourceInUseException => e
       puts 'DB exists -- no changes made, no retry attempted'
     end

@@ -2,7 +2,7 @@ require_relative 'spec_helper'
 require_relative 'support/story_helpers'
 require 'json'
 
-describe 'CadetService Stories' do
+describe 'CadetDynamo Stories' do
   include StoryHelpers
 
   describe 'Getting the root of the service' do
