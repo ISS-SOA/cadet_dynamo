@@ -41,10 +41,11 @@ describe 'CadetDynamo Stories' do
       post '/api/v2/tutorials', body.to_json, header
       last_response.must_be :redirect?
       next_location = last_response.location
-      next_location.must_match /api\/v2\/tutorials\/\d+/
+      next_location.must_match /api\/v2\/tutorials\/.+/
 
       # Check if request parameters are stored in ActiveRecord data store
-      tut_id = next_location.scan(/tutorials\/(\d+)/).flatten[0].to_i
+      #logger.info "SHOULD_FIND: #{next_location}"
+      tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0] #.to_i
       saved_tutorial = Tutorial.find(tut_id)
       JSON.parse(saved_tutorial.usernames).must_equal body[:usernames]
       JSON.parse(saved_tutorial.badges).must_include body[:badges][0]
@@ -90,10 +91,10 @@ describe 'CadetDynamo Stories' do
       post '/api/v2/tutorials', body.to_json, header
       last_response.must_be :redirect?
       next_location = last_response.location
-      next_location.must_match /api\/v2\/tutorials\/\d+/
+      next_location.must_match /api\/v2\/tutorials\/.+/
 
       # Check if request parameters are stored in ActiveRecord data store
-      tut_id = next_location.scan(/tutorials\/(\d+)/).flatten[0].to_i
+      tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0] #.to_i
       delete "/api/v2/tutorials/#{tut_id}"
       last_response.must_be :ok?
     end
