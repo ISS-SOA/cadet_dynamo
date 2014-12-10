@@ -51,7 +51,7 @@ describe 'CadetDynamo Stories' do
 
       # Check if redirect works
       follow_redirect!
-      last_request.url.must_match /api\/v2\/tutorials\/\d+/
+      last_request.url.must_match /api\/v2\/tutorials\/.+/
     end
 
     it 'should return 404 for unknown users' do
