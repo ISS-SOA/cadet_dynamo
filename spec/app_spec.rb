@@ -2,7 +2,7 @@ require_relative 'spec_helper'
 require_relative 'support/story_helpers'
 require 'json'
 
-describe 'CadetService Stories' do
+describe 'CadetDynamo Stories' do
   include StoryHelpers
 
   describe 'Getting the root of the service' do
@@ -41,17 +41,17 @@ describe 'CadetService Stories' do
       post '/api/v2/tutorials', body.to_json, header
       last_response.must_be :redirect?
       next_location = last_response.location
-      next_location.must_match /api\/v2\/tutorials\/\d+/
+      next_location.must_match /api\/v2\/tutorials\/.+/
 
       # Check if request parameters are stored in ActiveRecord data store
-      tut_id = next_location.scan(/tutorials\/(\d+)/).flatten[0].to_i
+      tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0]
       saved_tutorial = Tutorial.find(tut_id)
-      JSON.parse(saved_tutorial[:usernames]).must_equal body[:usernames]
-      JSON.parse(saved_tutorial[:badges]).must_include body[:badges][0]
+      JSON.parse(saved_tutorial.usernames).must_equal body[:usernames]
+      JSON.parse(saved_tutorial.badges).must_include body[:badges][0]
 
       # Check if redirect works
       follow_redirect!
-      last_request.url.must_match /api\/v2\/tutorials\/\d+/
+      last_request.url.must_match /api\/v2\/tutorials\/.+/
     end
 
     it 'should return 404 for unknown users' do
@@ -90,10 +90,10 @@ describe 'CadetService Stories' do
       post '/api/v2/tutorials', body.to_json, header
       last_response.must_be :redirect?
       next_location = last_response.location
-      next_location.must_match /api\/v2\/tutorials\/\d+/
+      next_location.must_match /api\/v2\/tutorials\/.+/
 
       # Check if request parameters are stored in ActiveRecord data store
-      tut_id = next_location.scan(/tutorials\/(\d+)/).flatten[0].to_i
+      tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0]
       delete "/api/v2/tutorials/#{tut_id}"
       last_response.must_be :ok?
     end
