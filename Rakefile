@@ -4,6 +4,7 @@ require 'rake/testtask'
 
 task :default => :spec
 
+# WARNING: Running tests deletes all data from the Tutorial database on DynamoDB
 desc "Run all tests"
 Rake::TestTask.new(name=:spec) do |t|
   t.pattern = 'spec/*_spec.rb'
