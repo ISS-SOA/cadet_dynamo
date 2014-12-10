@@ -5,8 +5,8 @@ require_relative 'model/tutorial'
 
 ##
 # Fork of CadetService, using DynamoDB instead of Postgres
-#
-# - config: ENV vars AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
+# - requires config:
+#   - create ENV vars AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
 class CadetDynamo < Sinatra::Base
 
   configure :production, :development do
@@ -65,7 +65,8 @@ class CadetDynamo < Sinatra::Base
   # API handlers
   get '/api/v1/?*' do
     status 400
-    "#{app.class.name} api/v1 is deprecated: please use <a href="/api/v2/">#{request.host}/api/v2/</a>"
+    "#{app.class.name} api/v1 is deprecated: please use " +
+    "<a href=\"/api/v2/\">#{request.host}/api/v2/</a>"
   end
 
   get '/api/v2/?' do
@@ -88,11 +89,9 @@ class CadetDynamo < Sinatra::Base
   post '/api/v2/tutorials' do
     content_type :json
     body = request.body.read
-    logger.info body
 
     begin
       req = JSON.parse(body)
-      logger.info req
     rescue Exception => e
       halt 400
     end
@@ -105,18 +104,15 @@ class CadetDynamo < Sinatra::Base
 
   get '/api/v2/tutorials/:id' do
     content_type :json
-    logger.info "GET /api/v2/tutorials/#{params[:id]}"
     begin
       @tutorial = Tutorial.find(params[:id])
       usernames = JSON.parse(@tutorial.usernames)
       badges = JSON.parse(@tutorial.badges)
-      logger.info({ usernames: usernames, badges: badges }.to_json)
     rescue
       halt 400
     end
 
     result = check_badges(usernames, badges).to_json
-    logger.info "result: #{result}\n"
     result
   end
 end
