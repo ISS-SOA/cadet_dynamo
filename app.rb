@@ -115,4 +115,18 @@ class CadetDynamo < Sinatra::Base
     result = check_badges(usernames, badges).to_json
     result
   end
+
+  post 'api/v2/subscribe' do
+    content_type :json
+    body = request.body.read
+
+    begin
+      req = JSON.parse(body)
+    rescue Exception => e
+      halt 400
+    end
+
+    tutorial = new_tutorial(req)
+    halt 500 unless tutorial.save
+  end
 end
