@@ -59,18 +59,18 @@ class CadetDynamo < Sinatra::Base
   end
 
   get '/' do
-    "#{app.class.name} api/v2 is up and working at /api/v2/"
+    "CadetDynamo api/v2 is up and working at /api/v2/"
   end
 
   # API handlers
   get '/api/v1/?*' do
     status 400
-    "#{app.class.name} api/v1 is deprecated: please use " +
+    "CadetDynamo api/v1 is deprecated: please use " +
     "<a href=\"/api/v2/\">#{request.host}/api/v2/</a>"
   end
 
   get '/api/v2/?' do
-    "#{app.class.name} /api/v2 is up and working"
+    "CadetDynamo /api/v2 is up and working"
   end
 
   get '/api/v2/cadet/:username.json' do
