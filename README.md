@@ -28,6 +28,15 @@ API v2 Routes:
   - returns status code:
     - 200 for success
     - 404 for failure (not found)
+- POST /api/v2/subscriber
+  - record tutorial request to DB
+    - description (string)
+    - usernames (json array)
+    - badges (json array)
+  - returns status code:
+    - 200 for success
+    - 400 for malformed JSON body elements
+    - 500 for save errors
 
 API v1 Routes:
 - GET /*

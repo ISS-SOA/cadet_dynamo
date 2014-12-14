@@ -59,18 +59,18 @@ class CadetDynamo < Sinatra::Base
   end
 
   get '/' do
-    "#{app.class.name} api/v2 is up and working at /api/v2/"
+    "CadetDynamo api/v2 is up and working at /api/v2/"
   end
 
   # API handlers
   get '/api/v1/?*' do
     status 400
-    "#{app.class.name} api/v1 is deprecated: please use " +
+    "CadetDynamo api/v1 is deprecated: please use " +
     "<a href=\"/api/v2/\">#{request.host}/api/v2/</a>"
   end
 
   get '/api/v2/?' do
-    "#{app.class.name} /api/v2 is up and working"
+    "CadetDynamo /api/v2 is up and working"
   end
 
   get '/api/v2/cadet/:username.json' do
@@ -114,5 +114,19 @@ class CadetDynamo < Sinatra::Base
 
     result = check_badges(usernames, badges).to_json
     result
+  end
+
+  post 'api/v2/subscribe' do
+    content_type :json
+    body = request.body.read
+
+    begin
+      req = JSON.parse(body)
+    rescue Exception => e
+      halt 400
+    end
+
+    tutorial = new_tutorial(req)
+    halt 500 unless tutorial.save
   end
 end
