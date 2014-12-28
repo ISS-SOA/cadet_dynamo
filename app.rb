@@ -133,7 +133,8 @@ class CadetDynamo < Sinatra::Base
 
     begin
       index = Tutorial.all.map do |t|
-        {id: t.id, description: t.description}
+        { id: t.id, description: t.description,
+          created_at: t.created_at, updated_at: t.updated_at }
       end
     rescue => e
       halt 400

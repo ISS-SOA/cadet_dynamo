@@ -11,7 +11,7 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
     - 200 for success
     - 404 for user not found
 - GET /api/v2/tutorials
-  - returns JSON array of tutorial ids and descriptions
+  - returns JSON array of all tutorials: id, description, created_at, updated_at
   - returns status codes:
     - 200 for success
     - 400 for processing error
