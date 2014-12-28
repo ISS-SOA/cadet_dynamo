@@ -35,17 +35,19 @@ class CadetDynamo < Sinatra::Base
     end
 
     def check_badges(usernames, badges)
-      @incomplete = {}
+      completed = {}
+      missing = {}
       begin
         usernames.each do |username|
-          badges_found = CodeBadges::CodecademyBadges.get_badges(username).keys
-          @incomplete[username] = \
-                  badges.reject { |badge| badges_found.include? badge }
+          user_results = CodeBadges::CodecademyBadges.get_badges(username)
+          missing[username] = \
+                  badges.reject { |badge| user_results.keys.include? badge }
+          completed[username] = user_results
         end
       rescue
         halt 404
       else
-        @incomplete
+        {missing: missing, completed: completed}
       end
     end
 
@@ -105,15 +107,23 @@ class CadetDynamo < Sinatra::Base
   get '/api/v2/tutorials/:id' do
     content_type :json
     begin
-      @tutorial = Tutorial.find(params[:id])
-      usernames = JSON.parse(@tutorial.usernames)
-      badges = JSON.parse(@tutorial.badges)
+      tutorial = Tutorial.find(params[:id])
     rescue
-      halt 400
+      halt 404
     end
 
-    result = check_badges(usernames, badges).to_json
-    result
+    begin
+      usernames = JSON.parse(tutorial.usernames)
+      badges = JSON.parse(tutorial.badges)
+
+      results = check_badges(usernames, badges)
+      tutorial.missing = results[:missing].to_json
+      tutorial.completed = results[:completed].to_json
+      tutorial.save
+    rescue => e
+      halt 400, e
+    end
+    results[:missing]
   end
 
   post 'api/v2/subscribe' do
