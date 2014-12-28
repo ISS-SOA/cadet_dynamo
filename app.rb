@@ -53,7 +53,7 @@ class CadetDynamo < Sinatra::Base
 
     def new_tutorial(req)
       tutorial = Tutorial.new
-      tutorial.description = req['description'].to_json
+      tutorial.description = req['description']
       tutorial.usernames = req['usernames'].to_json
       tutorial.badges = req['badges'].to_json
       tutorial
@@ -94,6 +94,7 @@ class CadetDynamo < Sinatra::Base
 
     begin
       req = JSON.parse(body)
+      logger.info req
     rescue Exception => e
       halt 400
     end
@@ -126,17 +127,19 @@ class CadetDynamo < Sinatra::Base
     results[:missing]
   end
 
-  post 'api/v2/subscribe' do
+  get '/api/v2/tutorials/?' do
     content_type :json
     body = request.body.read
 
     begin
-      req = JSON.parse(body)
-    rescue Exception => e
+      index = Tutorial.all.map do |t|
+        { id: t.id, description: t.description,
+          created_at: t.created_at, updated_at: t.updated_at }
+      end
+    rescue => e
       halt 400
     end
 
-    tutorial = new_tutorial(req)
-    halt 500 unless tutorial.save
+    index.to_json
   end
 end
