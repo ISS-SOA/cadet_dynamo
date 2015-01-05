@@ -124,7 +124,8 @@ class CadetDynamo < Sinatra::Base
     rescue => e
       halt 400, e
     end
-    results[:missing]
+
+    tutorial.missing
   end
 
   get '/api/v2/tutorials/?' do
