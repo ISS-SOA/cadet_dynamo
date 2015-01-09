@@ -10,6 +10,7 @@ GEM
     codebadges (0.1.1)
       nokogiri (>= 1.6.2)
     daemons (1.1.9)
+    dalli (2.7.2)
     eventmachine (1.0.3)
     json (1.8.1)
     mini_portile (0.6.1)
@@ -46,6 +47,7 @@ PLATFORMS
 DEPENDENCIES
   aws-sdk
   codebadges
+  dalli
   json
   minitest
   rack

@@ -7,6 +7,7 @@ gem 'codebadges'
 gem 'json'
 
 gem 'aws-sdk'
+gem 'dalli'
 
 group :test do
   gem 'minitest'

@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'codebadges'
 require 'json'
+require 'dalli'
 require_relative 'model/tutorial'
 
 ##
@@ -17,15 +18,28 @@ class CadetDynamo < Sinatra::Base
     set :session_secret, "something"    # ignore if not using shotgun in development
   end
 
+  set :cache, Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
+                                  {:username => ENV["MEMCACHIER_USERNAME"],
+                                    :password => ENV["MEMCACHIER_PASSWORD"],
+                                    :socket_timeout => 1.5,
+                                    :socket_failure_delay => 0.2
+                                    })
+  set :cache_username_ttl, 86_400    # 24hrs
+
   helpers do
+    def get_badges(username)
+      settings.cache.fetch(username, ttl=settings.cache_username_ttl) do
+        CodeBadges::CodecademyBadges.get_badges(username)
+      end
+    end
+
     def user
       username = params[:username]
       return nil unless username
 
       badges_after = { 'id' => username, 'type' => 'cadet', 'badges' => [] }
-
       begin
-        CodeBadges::CodecademyBadges.get_badges(username).each do |title, date|
+        get_badges(username).each do |title, date|
           badges_after['badges'].push('id' => title, 'date' => date)
         end
         badges_after
@@ -39,7 +53,7 @@ class CadetDynamo < Sinatra::Base
       missing = {}
       begin
         usernames.each do |username|
-          user_results = CodeBadges::CodecademyBadges.get_badges(username)
+          user_results = get_badges(username)
           missing[username] = \
                   badges.reject { |badge| user_results.keys.include? badge }
           completed[username] = user_results
