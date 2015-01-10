@@ -2,6 +2,8 @@ require './app'
 require_relative 'model/tutorial.rb'
 require_relative 'model/cadet.rb'
 require 'rake/testtask'
+require 'config_env/rake_tasks'
+ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
 
 task :default => :spec
 
@@ -9,6 +11,11 @@ task :default => :spec
 desc "Run all tests"
 Rake::TestTask.new(name=:spec) do |t|
   t.pattern = 'spec/*_spec.rb'
+end
+
+desc "Deploy to Heroku"
+task :deploy => :'config_env:heroku' do
+  sh 'git push heroku master'
 end
 
 namespace :db do

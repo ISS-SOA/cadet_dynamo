@@ -1,3 +1,5 @@
+require 'config_env'
+
 require 'sinatra/base'
 require 'codebadges'
 require 'json'
@@ -9,22 +11,28 @@ require_relative 'model/tutorial'
 # - requires config:
 #   - create ENV vars AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
 class CadetDynamo < Sinatra::Base
+  configure :development do
+    # ignore if not using shotgun in development
+    set :session_secret, "f7ds942kjsd7k23j"
+  end
+
+  configure :development, :test do
+    ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
+  end
+
+  configure do
+    set :cache, Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
+      {:username => ENV["MEMCACHIER_USERNAME"],
+        :password => ENV["MEMCACHIER_PASSWORD"],
+        :socket_timeout => 1.5,
+        :socket_failure_delay => 0.2
+        })
+    set :cache_username_ttl, 86_400    # 24hrs
+  end
 
   configure :production, :development do
     enable :logging
   end
-
-  configure :development do
-    set :session_secret, "something"    # ignore if not using shotgun in development
-  end
-
-  set :cache, Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
-                                  {:username => ENV["MEMCACHIER_USERNAME"],
-                                    :password => ENV["MEMCACHIER_PASSWORD"],
-                                    :socket_timeout => 1.5,
-                                    :socket_failure_delay => 0.2
-                                    })
-  set :cache_username_ttl, 86_400    # 24hrs
 
   helpers do
     def get_badges(username)
@@ -103,18 +111,13 @@ class CadetDynamo < Sinatra::Base
   end
 
   post '/api/v2/tutorials' do
-    content_type :json
-    body = request.body.read
-
     begin
-      req = JSON.parse(body)
-      logger.info req
-    rescue Exception => e
-      halt 400
+      req = JSON.parse(request.body.read)
+    rescue => e
+      halt 400, e
     end
 
-    tutorial = new_tutorial(req)
-    if tutorial.save
+    if new_tutorial(req).save
       redirect "/api/v2/tutorials/#{tutorial.id}"
     end
   end
@@ -152,7 +155,7 @@ class CadetDynamo < Sinatra::Base
           created_at: t.created_at, updated_at: t.updated_at }
       end
     rescue => e
-      halt 400
+      halt 400, e
     end
 
     index.to_json
