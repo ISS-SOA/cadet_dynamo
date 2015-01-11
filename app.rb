@@ -1,9 +1,9 @@
 require 'config_env'
+require 'dalli'
 require 'aws-sdk'
 require 'sinatra/base'
 require 'codebadges'
 require 'json'
-require 'dalli'
 require_relative 'model/tutorial'
 
 ##
@@ -38,15 +38,24 @@ class CadetDynamo < Sinatra::Base
   end
 
   helpers do
+    def cacheing?
+      cacheing_param = params[:cache]
+      (cacheing_param && cacheing_param.downcase == 'false') ? false : true
+    end
+
     def get_badges(username)
-      settings.cadet_cache.fetch(username, ttl=settings.cadet_cache_ttl) do
-        badges = CodeBadges::CodecademyBadges.get_badges username
-        settings.cadet_queue.send_message(username) if badges
-        badges
+      if cacheing?
+        settings.cadet_cache.fetch(username, ttl=settings.cadet_cache_ttl) do
+          badges = CodeBadges::CodecademyBadges.get_badges username
+          settings.cadet_queue.send_message(username) if badges
+          badges
+        end
+      else
+        CodeBadges::CodecademyBadges.get_badges username
       end
     end
 
-    def user
+    def get_user_badges
       username = params[:username]
       return nil unless username
 
@@ -104,7 +113,8 @@ class CadetDynamo < Sinatra::Base
 
   get '/api/v2/cadet/:username.json' do
     content_type :json
-    user.nil? ? halt(404) : user.to_json
+    badges = get_user_badges
+    badges.nil? ? halt(404) : badges.to_json
   end
 
   delete '/api/v2/tutorials/:id' do
