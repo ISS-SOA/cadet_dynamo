@@ -53,9 +53,17 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
   - returns status code 400
 
 ## Setup
-Create DynamoDB database:
+  - Create DynamoDB database:
+    `rake db:migrate`
+  - Create SQS queue for recent cadet queries:
+    `rake queue:create`
+  - Deploy settings to Heroku:
+    `rake deploy`
 
-    rake db:migrate
+## Outside Services:
+Amazon DynamoDB
+Memcachier
+Amazon SQS
 
 ## Testing:
 **warning**: running specs wipes remote database
