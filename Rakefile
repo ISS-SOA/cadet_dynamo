@@ -1,6 +1,6 @@
 require './app'
+require 'aws-sdk'
 require_relative 'model/tutorial.rb'
-require_relative 'model/cadet.rb'
 require 'rake/testtask'
 require 'config_env/rake_tasks'
 ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
@@ -18,9 +18,25 @@ task :deploy => :'config_env:heroku' do
   sh 'git push heroku master'
 end
 
+namespace :queue do
+  desc "Create all queues"
+  task :create do
+    sqs = AWS::SQS.new(region: ENV['AWS_REGION'])
+
+    begin
+      queue = sqs.queues.create('Tutorial')
+      queue = sqs.queues.create('RecentCadet')
+    rescue => e
+      puts "Error creating queues: #{e}"
+    else
+      puts "Queues created"
+    end
+  end
+end
+
 namespace :db do
   desc "Create all database tables"
-  task :migrate => [:migrate_tutorial, :migrate_cadet]
+  task :migrate => [:migrate_tutorial]
 
   desc "Create tutorial table"
   task :migrate_tutorial do
@@ -29,16 +45,6 @@ namespace :db do
       puts "Tutorial table created"
     rescue AWS::DynamoDB::Errors::ResourceInUseException => e
       puts 'Tutorial table exists -- no changes made, no retry attempted'
-    end
-  end
-
-  desc "Create cadet table"
-  task :migrate_cadet do
-    begin
-      Cadet.create_table(5,6)
-      puts "Cadet table created"
-    rescue AWS::DynamoDB::Errors::ResourceInUseException => e
-      puts 'Cadet table exists -- no changes made, no retry attempted'
     end
   end
 end

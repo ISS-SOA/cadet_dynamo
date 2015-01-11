@@ -1,5 +1,5 @@
 require 'config_env'
-
+require 'aws-sdk'
 require 'sinatra/base'
 require 'codebadges'
 require 'json'
@@ -21,13 +21,16 @@ class CadetDynamo < Sinatra::Base
   end
 
   configure do
-    set :cache, Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
+    set :cadet_cache, Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
       {:username => ENV["MEMCACHIER_USERNAME"],
         :password => ENV["MEMCACHIER_PASSWORD"],
         :socket_timeout => 1.5,
         :socket_failure_delay => 0.2
         })
-    set :cache_username_ttl, 86_400    # 24hrs
+    set :cadet_cache_ttl, 86_400    # 24hrs
+
+    set :cadet_sqs, AWS::SQS.new(region: ENV['AWS_REGION'])
+    set :cadet_queue, settings.cadet_sqs.queues.named('RecentCadet')
   end
 
   configure :production, :development do
@@ -36,8 +39,10 @@ class CadetDynamo < Sinatra::Base
 
   helpers do
     def get_badges(username)
-      settings.cache.fetch(username, ttl=settings.cache_username_ttl) do
-        CodeBadges::CodecademyBadges.get_badges(username)
+      settings.cadet_cache.fetch(username, ttl=settings.cadet_cache_ttl) do
+        badges = CodeBadges::CodecademyBadges.get_badges username
+        settings.cadet_queue.send_message(username) if badges
+        badges
       end
     end
 
@@ -113,11 +118,12 @@ class CadetDynamo < Sinatra::Base
   post '/api/v2/tutorials' do
     begin
       req = JSON.parse(request.body.read)
-    rescue => e
-      halt 400, e
+    rescue
+      halt 400
     end
 
-    if new_tutorial(req).save
+    tutorial = new_tutorial(req)
+    if tutorial.save
       redirect "/api/v2/tutorials/#{tutorial.id}"
     end
   end
@@ -138,8 +144,8 @@ class CadetDynamo < Sinatra::Base
       tutorial.missing = results[:missing].to_json
       tutorial.completed = results[:completed].to_json
       tutorial.save
-    rescue => e
-      halt 400, e
+    rescue
+      halt 400
     end
 
     tutorial.missing
@@ -154,8 +160,8 @@ class CadetDynamo < Sinatra::Base
         { id: t.id, description: t.description,
           created_at: t.created_at, updated_at: t.updated_at }
       end
-    rescue => e
-      halt 400, e
+    rescue
+      halt 400
     end
 
     index.to_json
