@@ -4,6 +4,7 @@ require 'aws-sdk'
 require 'sinatra/base'
 require 'codebadges'
 require 'json'
+require_relative 'cadet_helpers'
 require_relative 'model/tutorial'
 
 ##
@@ -11,6 +12,8 @@ require_relative 'model/tutorial'
 # - requires config:
 #   - create ENV vars AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
 class CadetDynamo < Sinatra::Base
+  helpers CadetHelpers
+
   configure :development do
     # ignore if not using shotgun in development
     set :session_secret, "f7ds942kjsd7k23j"
@@ -37,64 +40,6 @@ class CadetDynamo < Sinatra::Base
     enable :logging
   end
 
-  helpers do
-    def cacheing?
-      cacheing_param = params[:cache]
-      (cacheing_param && cacheing_param.downcase == 'false') ? false : true
-    end
-
-    def get_badges(username)
-      if cacheing?
-        settings.cadet_cache.fetch(username, ttl=settings.cadet_cache_ttl) do
-          badges = CodeBadges::CodecademyBadges.get_badges username
-          settings.cadet_queue.send_message(username) if badges
-          badges
-        end
-      else
-        CodeBadges::CodecademyBadges.get_badges username
-      end
-    end
-
-    def get_user_badges
-      username = params[:username]
-      return nil unless username
-
-      badges_after = { 'id' => username, 'type' => 'cadet', 'badges' => [] }
-      begin
-        get_badges(username).each do |title, date|
-          badges_after['badges'].push('id' => title, 'date' => date)
-        end
-        badges_after
-      rescue
-        nil
-      end
-    end
-
-    def check_badges(usernames, badges)
-      completed = {}
-      missing = {}
-      begin
-        usernames.each do |username|
-          user_results = get_badges(username)
-          missing[username] = \
-                  badges.reject { |badge| user_results.keys.include? badge }
-          completed[username] = user_results
-        end
-      rescue
-        halt 404
-      else
-        {missing: missing, completed: completed}
-      end
-    end
-
-    def new_tutorial(req)
-      tutorial = Tutorial.new
-      tutorial.description = req['description']
-      tutorial.usernames = req['usernames'].to_json
-      tutorial.badges = req['badges'].to_json
-      tutorial
-    end
-  end
 
   get '/' do
     "CadetDynamo api/v2 is up and working at /api/v2/"

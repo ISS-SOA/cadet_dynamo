@@ -3,9 +3,10 @@ require 'aws-sdk'
 require_relative 'model/tutorial.rb'
 require 'rake/testtask'
 require 'config_env/rake_tasks'
-ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
 
-task :default => :spec
+task :echo_env, [:var] do |t, args|
+  puts "#{ENV[args[:var]]}"
+end
 
 # WARNING: Running tests deletes all data from the Tutorial database on DynamoDB
 desc "Run all tests"
@@ -35,11 +36,8 @@ namespace :queue do
 end
 
 namespace :db do
-  desc "Create all database tables"
-  task :migrate => [:migrate_tutorial]
-
   desc "Create tutorial table"
-  task :migrate_tutorial do
+  task :migrate do
     begin
       Tutorial.create_table(5, 6)
       puts "Tutorial table created"
