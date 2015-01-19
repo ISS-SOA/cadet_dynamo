@@ -1,10 +1,10 @@
-require 'config_env'
 require 'aws-sdk'
 require 'sinatra/base'
 require 'codebadges'
 require 'json'
 require 'dalli'
 require_relative 'model/tutorial'
+require 'config_env'
 
 ##
 # Fork of CadetService, using DynamoDB instead of Postgres

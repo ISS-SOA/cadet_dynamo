@@ -1,17 +1,17 @@
 source 'http://rubygems.org'
+ruby '2.1.0'
 
+# gems for internal operations
 gem 'thin'
 gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'codebadges'
 gem 'json'
 
-gem 'aws-sdk'
-gem 'dalli'
-
-group :development, :test do
-  gem 'config_env'
-end
+# gems requiring credentials for 3rd party services
+gem 'config_env'
+gem 'aws-sdk'       # DynamoDB, SQS Message Queue
+gem 'dalli'         # Memcachier
 
 group :test do
   gem 'minitest'
