@@ -1,4 +1,5 @@
 source 'http://rubygems.org'
+ruby '2.1.0'
 
 # gems for internal operations
 gem 'thin'
