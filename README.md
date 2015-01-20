@@ -6,6 +6,9 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
 - GET /
   - returns OK status to indicate service is alive
 - GET /api/v2/cadet/<username>.json
+  - optional URL parameter: 'from_cache'
+    - true (default): read first from cache, else scrape + encache + enqueue
+    - false: scrape + encache
   - returns JSON body of user info: id (name), type, badges
   - returns status code:
     - 200 for success
@@ -26,7 +29,10 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
   - redirects to GET /api/v2/tutorials/:id
   - side effects: record created in in DynamoDB
 - GET /api/v2/tutorials/:id
-  - takes: id # (1,2,3, etc.)
+  - takes: id number
+  - optional URL parameter: 'from_cache'
+      - true (default): read first from cache, else scrape + encache + enqueue
+      - false: scrape + encache
   - returns body: json of missing badges
   - returns status code:
     - 200 for success
@@ -61,11 +67,16 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
     `rake deploy`
 
 ## Outside Services:
-Amazon DynamoDB
-Memcachier
-Amazon SQS
+- Amazon DynamoDB
+- Amazon SQS
+- Memcachier
+
+External resources (production) are deployed on 'us-east-1' region of AWS:
 
 ## Testing:
-**warning**: running specs wipes remote database
 
-    rake spec
+Rake task from command line:
+
+    $ rake spec
+
+External resources (test) are deployed on 'eu-central-1' region of AWS.

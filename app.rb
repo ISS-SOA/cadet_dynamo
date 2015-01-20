@@ -32,8 +32,8 @@ class CadetDynamo < Sinatra::Base
         })
     set :cadet_cache_ttl, 86_400    # 24hrs
 
-    set :cadet_sqs, AWS::SQS.new(region: ENV['AWS_REGION'])
-    set :cadet_queue, settings.cadet_sqs.queues.named('RecentCadet')
+    set :cadet_queue, AWS::SQS.new(region: ENV['AWS_REGION'])
+    set :cadet_queue_name, 'RecentCadet'
   end
 
   configure :production, :development do
