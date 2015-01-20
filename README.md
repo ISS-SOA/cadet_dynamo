@@ -26,7 +26,11 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
   - redirects to GET /api/v2/tutorials/:id
   - side effects: record created in in DynamoDB
 - GET /api/v2/tutorials/:id
-  - takes: id # (1,2,3, etc.)
+  - takes: id number
+  - optional URL parameters:
+    - 'from_cache'
+      - true (default): read first from cache, else scrape + encache + enqueue
+      - false: scrape + encache
   - returns body: json of missing badges
   - returns status code:
     - 200 for success

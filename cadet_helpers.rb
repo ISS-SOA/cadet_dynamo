@@ -9,7 +9,8 @@ module CadetHelpers
   end
 
   def enqueue_cadet(username)
-    settings.cadet_queue.send_message(username)
+    queue = settings.cadet_queue.queues.named(settings.cadet_queue_name)
+    queue.send_message(username)
   rescue => e
     logger.error "Cadet cacheing failed: #{e}"
   end
