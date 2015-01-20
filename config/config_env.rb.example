@@ -1,5 +1,5 @@
 # Skeleton file for true config_env.rb
-# - fill in empty strings ('') with your keys/secrets
+# - put your keys/secrets inside the empty strings ('')
 config_env do
   set 'AWS_ACCESS_KEY_ID', ''
   set 'AWS_SECRET_ACCESS_KEY', ''
