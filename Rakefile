@@ -52,8 +52,8 @@ namespace :db do
   desc "Create tutorial table"
   task :migrate do
     begin
-      table = Tutorial.create_table(5, 6)
-      puts "Tutorial table created: #{table}"
+      Tutorial.create_table(5, 6)
+      puts 'Tutorial table created'
     rescue AWS::DynamoDB::Errors::ResourceInUseException => e
       puts 'Tutorial table already exists'
     end
