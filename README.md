@@ -1,4 +1,7 @@
 # CadetDynamo
+[ ![Codeship Status for ISS-SOA/cadet_dynamo](https://codeship.com/projects/55bae420-8357-0132-6ce1-366b1854f7f3/status?branch=master)](https://codeship.com/projects/58109)
+[![Stack Share](http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](http://stackshare.io/soumyaray/cadetdynamo)
+
 An API web service for accessing Codecademy data (uses DynamoDB for storage)
 
 ## HTTP Routes
