@@ -12,14 +12,24 @@ describe 'CadetDynamo Stories' do
     end
   end
 
-  describe 'Getting single user information' do
-    it 'should return their badges' do
+  describe 'Getting single cadet badges' do
+    it 'should return single cadet badges' do
       get '/api/v2/cadet/soumya.ray.json'
+      last_response.must_be :ok?
+    end
+
+    it 'should return single cadet badges when from_cache=false' do
+      get '/api/v2/cadet/soumya.ray.json?from_cache=false'
       last_response.must_be :ok?
     end
 
     it 'should return 404 for unknown user' do
       get "/api/v2/cadet/#{random_str(20)}.json"
+      last_response.must_be :not_found?
+    end
+
+    it 'should return 404 for unkown user when from_cache=false' do
+      get "/api/v2/cadet/#{random_str(20)}.json?from_cache=false"
       last_response.must_be :not_found?
     end
   end
