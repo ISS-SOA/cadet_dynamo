@@ -17,11 +17,8 @@ module CadetHelpers
     queue = settings.cadet_queue.queues.named(settings.cadet_queue_name)
 
     cadet_url = URI.join(API_BASE_URI, API_VER,
-                          'cadet/', "#{username}.json&from_cache=false")
-    message = {
-                username: username,
-                url: cadet_url
-              }
+                          'cadet/', "#{username}.json?from_cache=false")
+    message = { username: username, url: cadet_url }
     result = queue.send_message(message.to_json)
   rescue => e
     logger.error "ENQUEUE_CADET failed: #{e}"
@@ -35,7 +32,7 @@ module CadetHelpers
 
   def scrape_enqueue_cadet(username)
     (scrape_badges username).tap { |badges| enqueue_cadet(username) if badges }
-  rescue
+  rescue => e
     logger.info "SCRAPE_ENQUEUE_CADET failed: #{e}"
   end
 
