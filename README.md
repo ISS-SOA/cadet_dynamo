@@ -1,6 +1,5 @@
 # CadetDynamo
 [![Codeship Status for ISS-SOA/cadet_dynamo](https://codeship.com/projects/55bae420-8357-0132-6ce1-366b1854f7f3/status?branch=master)](https://codeship.com/projects/58109)
-[![Stack Share](http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](http://stackshare.io/soumyaray/cadetdynamo)
 
 An API web service for accessing Codecademy data (uses DynamoDB for storage)
 
@@ -61,20 +60,33 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
   - returns deprecation message
   - returns status code 400
 
-## Setup
-  - Create DynamoDB database:
-    `rake db:migrate`
-  - Create SQS queue for recent cadet queries:
-    `rake queue:create`
+
+## Setup Using Rake
+- Full setup: create outside resources and deploy to Heroku:
+  `rake deploy:production`
+- Discrete setups steps:
+  - Setup outside resources: `rake deploy:resources RACK_ENV=production` calls:
+    - Push credentials to Heroku:
+      `rake config`
+    - Create DynamoDB database for tutorial queries:
+      `rake db:migrate RACK_ENV=production`
+    - Create SQS queue for recent cadet queries:
+      `rake queue:create RACK_ENV=production`
   - Deploy settings to Heroku:
-    `rake deploy`
+    `rake deploy:production`
 
-## Outside Services:
-- Amazon DynamoDB
-- Amazon SQS
-- Memcachier
+note: rake tasks require local config/config.yml outside of VCS
 
-External resources (production) are deployed on 'us-east-1' region of AWS:
+
+## Outside Services and Resources:
+[![Stack Share](http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](http://stackshare.io/soumyaray/cadetdynamo) : full list of resources
+
+- Amazon DynamoDB: Tutorials table for storing query details
+- Amazon SQS: {username, cadet_url?from_cache=false} for cadet_refresh worker
+- Memcachier: (username: badges) for cacheing
+
+External production resources are deployed on AWS region 'us-east-1'.
+
 
 ## Testing:
 
@@ -82,4 +94,4 @@ Rake task from command line:
 
     $ rake spec
 
-External resources (test) are deployed on 'eu-central-1' region of AWS.
+External test resources are deployed on AWS region 'eu-central-1'.
