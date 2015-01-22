@@ -1,3 +1,5 @@
+require 'json'
+
 module CadetHelpers
   API_BASE_URI = 'http://cadetdynamo.herokuapp.com/'
   API_VER = 'api/v2/'
@@ -20,23 +22,30 @@ module CadetHelpers
                 username: username,
                 url: cadet_url
               }
-    queue.send_message(message.json)
+    result = queue.send_message(message.to_json)
   rescue => e
-    logger.error "Cadet cacheing failed: #{e}"
+    logger.error "ENQUEUE_CADET failed: #{e}"
   end
 
   def encache_cadet(username, badges)
     settings.cadet_cache.set username, badges
   rescue => e
-    logger.info "Failed to encache cadet: #{e}"
+    logger.info "ENCACHE_CADET failed: #{e}"
+  end
+
+  def scrape_enqueue_cadet(username)
+    (scrape_badges username).tap { |badges| enqueue_cadet(username) if badges }
+  rescue
+    logger.info "SCRAPE_ENQUEUE_CADET failed: #{e}"
   end
 
   def get_cached_badges(username)
     settings.cadet_cache.fetch(username, ttl=settings.cadet_cache_ttl) do
-      (scrape_badges username).tap { |badges| enqueue_cadet(username) if badges }
+      scrape_enqueue_cadet username
     end
-  rescue
-    scrape_badges username
+  rescue => e
+    logger.info "GET_CACHED_BADGES failed: #{e}"
+    scrape_enqueue_cadet username
   end
 
   def get_badges(username)
