@@ -40,6 +40,10 @@ class CadetDynamo < Sinatra::Base
   end
 
 
+  before do
+    @HOST_WITH_PORT = request.host_with_port
+  end
+
   get '/' do
     "CadetDynamo api/v2 is up and working at /api/v2/"
   end

@@ -16,7 +16,7 @@ module CadetHelpers
   def enqueue_cadet(username)
     queue = settings.cadet_queue.queues.named(settings.cadet_queue_name)
 
-    cadet_url = URI.join(API_BASE_URI, API_VER,
+    cadet_url = URI.join('http://'+@HOST_WITH_PORT+'/', API_VER,
                           'cadet/', "#{username}.json?from_cache=false")
     message = { username: username, url: cadet_url }
     result = queue.send_message(message.to_json)
