@@ -3,7 +3,6 @@ require 'dalli'
 require 'aws-sdk'
 require 'sinatra/base'
 require 'codebadges'
-require 'json'
 require_relative 'cadet_helpers'
 require_relative 'model/tutorial'
 
