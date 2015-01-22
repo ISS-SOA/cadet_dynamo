@@ -1,7 +1,10 @@
 module CadetHelpers
+  API_BASE_URI = 'http://cadetdynamo.herokuapp.com/'
+  API_VER = 'api/v2/'
+
   def from_cache?
-    cacheing_param = params[:from_cache]
-    (cacheing_param && cacheing_param.downcase == 'false') ? false : true
+    cacheing = params['from_cache']
+    (cacheing && cacheing.downcase == 'false') ? false : true
   end
 
   def scrape_badges(username)
@@ -10,13 +13,22 @@ module CadetHelpers
 
   def enqueue_cadet(username)
     queue = settings.cadet_queue.queues.named(settings.cadet_queue_name)
-    queue.send_message(username)
+
+    cadet_url = URI.join(API_BASE_URI, API_VER,
+                          'cadet/', "#{username}.json&from_cache=false")
+    message = {
+                username: username,
+                url: cadet_url
+              }
+    queue.send_message(message.json)
   rescue => e
     logger.error "Cadet cacheing failed: #{e}"
   end
 
   def encache_cadet(username, badges)
     settings.cadet_cache.set username, badges
+  rescue => e
+    logger.info "Failed to encache cadet: #{e}"
   end
 
   def get_cached_badges(username)
