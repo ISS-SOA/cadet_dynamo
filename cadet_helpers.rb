@@ -3,8 +3,8 @@ module CadetHelpers
   API_VER = 'api/v2/'
 
   def from_cache?
-    cacheing_param = params['from_cache']
-    (cacheing_param && cacheing_param.downcase == 'false') ? false : true
+    cacheing = params['from_cache']
+    (cacheing && cacheing.downcase == 'false') ? false : true
   end
 
   def scrape_badges(username)
