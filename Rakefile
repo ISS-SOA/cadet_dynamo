@@ -59,3 +59,35 @@ namespace :db do
     end
   end
 end
+
+namespace :cache do
+  require 'dalli'
+  Rake::Task['config'].invoke
+  cache = Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
+                              {:username => ENV["MEMCACHIER_USERNAME"],
+                                :password => ENV["MEMCACHIER_PASSWORD"],
+                                :socket_timeout => 1.5,
+                                :socket_failure_delay => 0.2
+                                })
+  cadet_cache_ttl = 86_400
+
+  desc "Drain values from cache and print on screen"
+  task :flush do
+    begin
+      puts "Accessing cache server: #{ENV["MEMCACHIER_SERVERS"]}"
+      puts "Stats on server: #{cache.stats}"
+      puts "Flushing cache: #{cache.flush}"
+    rescue => e
+      puts "Could not flush cache: #{e}"
+    end
+  end
+
+  task :fetch, [:key] do |t, args|
+    begin
+      val = cache.fetch(args[:key], ttl=cadet_cache_ttl)
+      val ? puts("From cache: #{args[:key]}: #{val}") : puts("No such key found")
+    rescue => e
+      puts "Could not get value from cache: #{e}"
+    end
+  end
+end
