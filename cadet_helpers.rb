@@ -17,7 +17,7 @@ module CadetHelpers
     queue = settings.cadet_queue.queues.named(settings.cadet_queue_name)
 
     cadet_url = URI.join(API_BASE_URI, API_VER,
-                          'cadet/', "#{username}.json&from_cache=false")
+                          'cadet/', "#{username}.json?from_cache=false")
     message = {
                 username: username,
                 url: cadet_url
