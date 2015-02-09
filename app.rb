@@ -15,7 +15,7 @@ class CadetDynamo < Sinatra::Base
 
   configure :development do
     # ignore if not using shotgun in development
-    set :session_secret, "f7ds942kjsd7k23j"
+    set :session_secret, "fixed secret"
   end
 
   configure :development, :test do
@@ -39,33 +39,38 @@ class CadetDynamo < Sinatra::Base
     enable :logging
   end
 
-
   before do
     @HOST_WITH_PORT = request.host_with_port
   end
 
-  get '/' do
-    "CadetDynamo api/v2 is up and working at /api/v2/"
+  show_root = lambda do
+    show_api_v3_root.call
   end
 
-  # API handlers
-  get '/api/v1/?*' do
+  show_api_v1_deprecation = lambda do
     status 400
     "CadetDynamo api/v1 is deprecated: please use " +
-    "<a href=\"/api/v2/\">#{request.host}/api/v2/</a>"
+    "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
 
-  get '/api/v2/?' do
-    "CadetDynamo /api/v2 is up and working"
+  show_api_v2_root = lambda do
+    "CadetDynamo /api/v2 is up and working, but is deprecated. " +
+    "It is no longer tested. Please use: " +
+    "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
 
-  get '/api/v2/cadet/:username.json' do
+  show_api_v3_root = lambda do
+    "CadetDynamo API v3 is up and running at " +
+    "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
+  end
+
+  get_cadet_info = lambda do
     content_type :json
     badges = get_user_badges
     badges.nil? ? halt(404) : badges.to_json
   end
 
-  delete '/api/v2/tutorials/:id' do
+  delete_cadet = lambda do
     begin
       Tutorial.destroy(params[:id])
     rescue
@@ -73,43 +78,7 @@ class CadetDynamo < Sinatra::Base
     end
   end
 
-  post '/api/v2/tutorials' do
-    begin
-      req = JSON.parse(request.body.read)
-    rescue
-      halt 400
-    end
-
-    tutorial = new_tutorial(req)
-    if tutorial.save
-      redirect "/api/v2/tutorials/#{tutorial.id}"
-    end
-  end
-
-  get '/api/v2/tutorials/:id' do
-    content_type :json
-    begin
-      tutorial = Tutorial.find(params[:id])
-    rescue
-      halt 404
-    end
-
-    begin
-      usernames = JSON.parse(tutorial.usernames)
-      badges = JSON.parse(tutorial.badges)
-
-      results = check_badges(usernames, badges)
-      tutorial.missing = results[:missing].to_json
-      tutorial.completed = results[:completed].to_json
-      tutorial.save
-    rescue
-      halt 400
-    end
-
-    tutorial.missing
-  end
-
-  get '/api/v2/tutorials/?' do
+  get_tutorial_index = lambda do
     content_type :json
     body = request.body.read
 
@@ -124,4 +93,61 @@ class CadetDynamo < Sinatra::Base
 
     index.to_json
   end
+
+  create_tutorial_query = lambda do
+    begin
+      req = JSON.parse(request.body.read)
+    rescue
+      halt 400
+    end
+
+    tutorial = new_tutorial(req)
+    if tutorial.save
+      redirect "/api/#{@ver}/tutorials/#{tutorial.id}"
+    end
+  end
+
+  get_tutorial_v2 = lambda do
+    content_type :json
+    get_update_tutorial_json(params[:id]).missing
+  end
+
+  get_tutorial_v3 = lambda do
+    content_type :json
+    tut = get_update_tutorial_json(params[:id])
+    { description: tut.description,
+      usernames:   JSON[tut.usernames],
+      badges:      JSON[tut.badges],
+      completed:   JSON[tut.completed],
+      missing:     JSON[tut.missing] }.to_json
+  end
+
+  capture_api_ver = lambda do |ver|
+    @ver = ver
+    pass
+  end
+
+  # API handlers
+  get '/', &show_root
+
+  get %r{/api/(v\d)/*}, &capture_api_ver
+  put %r{/api/(v\d)/*}, &capture_api_ver
+  post %r{/api/(v\d)/*}, &capture_api_ver
+  delete %r{/api/(v\d)/*}, &capture_api_ver
+
+  get '/api/v1/?*', &show_api_v1_deprecation
+
+  get '/api/v2/?', &show_api_v2_root
+  get '/api/v2/cadet/:username.json', &get_cadet_info
+  get '/api/v2/tutorials/?', &get_tutorial_index
+  post '/api/v2/tutorials', &create_tutorial_query
+  delete '/api/v2/tutorials/:id', &delete_cadet
+  get '/api/v2/tutorials/:id', &get_tutorial_v2
+
+  get '/api/v3/?', &show_api_v3_root
+  get '/api/v3/cadet/:username.json', &get_cadet_info
+  get '/api/v3/tutorials/?', &get_tutorial_index
+  post '/api/v3/tutorials', &create_tutorial_query
+  delete '/api/v3/tutorials/:id', &delete_cadet
+  get '/api/v3/tutorials/:id', &get_tutorial_v3
 end

@@ -8,7 +8,7 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
 ### API v2 Routes:
 - GET /
   - returns OK status to indicate service is alive
-- GET /api/v2/cadet/<username>.json
+- GET /api/v3/cadet/<username>.json
   - optional URL parameter: 'from_cache'
     - true (default): read first from cache, else scrape + encache + enqueue
     - false: scrape + encache
@@ -16,12 +16,12 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
   - returns status code:
     - 200 for success
     - 404 for user not found
-- GET /api/v2/tutorials
+- GET /api/v3/tutorials
   - returns JSON array of all tutorials: id, description, created_at, updated_at
   - returns status codes:
     - 200 for success
     - 400 for processing error
-- POST /api/v2/tutorials
+- POST /api/v3/tutorials
   - record tutorial request to DB
     - description (string)
     - usernames (json array)
@@ -29,9 +29,9 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
   - returns status code:
     - 200 for success
     - 400 for malformed JSON body elements
-  - redirects to GET /api/v2/tutorials/:id
+  - redirects to GET /api/v3/tutorials/:id
   - side effects: record created in in DynamoDB
-- GET /api/v2/tutorials/:id
+- GET /api/v3/tutorials/:id
   - takes: id number
   - optional URL parameter: 'from_cache'
       - true (default): read first from cache, else scrape + encache + enqueue
@@ -41,12 +41,12 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
     - 200 for success
     - 404 for resource not found
   - side effects: completed/missing results stored in DynamoDB
-- DELETE /api/v2/tutorials/:id
+- DELETE /api/v3/tutorials/:id
   - takes: id # (1,2,3, etc.) of query
   - returns status code:
     - 200 for success
     - 404 for failure (not found)
-- POST /api/v2/subscriber
+- POST /api/v3/subscriber
   - record tutorial request to DB
     - description (string)
     - usernames (json array)
