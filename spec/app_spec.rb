@@ -14,22 +14,22 @@ describe 'CadetDynamo Stories' do
 
   describe 'Getting single cadet badges' do
     it 'should return single cadet badges' do
-      get '/api/v2/cadet/soumya.ray.json'
+      get '/api/v3/cadet/soumya.ray.json'
       last_response.must_be :ok?
     end
 
     it 'should return single cadet badges when from_cache=false' do
-      get '/api/v2/cadet/soumya.ray.json?from_cache=false'
+      get '/api/v3/cadet/soumya.ray.json?from_cache=false'
       last_response.must_be :ok?
     end
 
     it 'should return 404 for unknown user' do
-      get "/api/v2/cadet/#{random_str(20)}.json"
+      get "/api/v3/cadet/#{random_str(20)}.json"
       last_response.must_be :not_found?
     end
 
     it 'should return 404 for unkown user when from_cache=false' do
-      get "/api/v2/cadet/#{random_str(20)}.json?from_cache=false"
+      get "/api/v3/cadet/#{random_str(20)}.json?from_cache=false"
       last_response.must_be :not_found?
     end
   end
@@ -48,10 +48,10 @@ describe 'CadetDynamo Stories' do
       }
 
       # Check redirect URL from post request
-      post '/api/v2/tutorials', valid_body.to_json, valid_header
+      post '/api/v3/tutorials', valid_body.to_json, valid_header
       last_response.must_be :redirect?
       next_location = last_response.location
-      next_location.must_match /api\/v2\/tutorials\/.+/
+      next_location.must_match /api\/v3\/tutorials\/.+/
 
       # Check if request parameters are stored in ActiveRecord data store
       tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0]
@@ -61,11 +61,12 @@ describe 'CadetDynamo Stories' do
 
       # Check if redirect works
       follow_redirect!
-      last_request.url.must_match /api\/v2\/tutorials\/.+/
-
+      last_request.url.must_match /api\/v3\/tutorials\/.+/
+      # puts "URL: #{last_request.url}"
+      # puts "BODY: #{last_response.body}"
       # Check if correct results returned
       results = JSON.parse last_response.body
-      results['soumya.ray'].must_equal valid_body[:badges]
+      results['missing']['soumya.ray'].must_equal valid_body[:badges]
     end
 
     it 'should return 404 for unknown users' do
@@ -76,7 +77,7 @@ describe 'CadetDynamo Stories' do
         badges: [random_str(30)]
       }
 
-      post '/api/v2/tutorials', body.to_json, header
+      post '/api/v3/tutorials', body.to_json, header
 
       last_response.must_be :redirect?
       follow_redirect!
@@ -87,10 +88,9 @@ describe 'CadetDynamo Stories' do
       header = { 'CONTENT_TYPE' => 'application/json' }
       body = random_str(50)
 
-      post '/api/v2/tutorials', body, header
+      post '/api/v3/tutorials', body, header
       last_response.must_be :bad_request?
     end
-
 
     it 'should be able to delete a previous query' do
       header = { 'CONTENT_TYPE' => 'application/json' }
@@ -101,20 +101,19 @@ describe 'CadetDynamo Stories' do
       }
 
       # Check redirect URL from post request
-      post '/api/v2/tutorials', body.to_json, header
+      post '/api/v3/tutorials', body.to_json, header
       last_response.must_be :redirect?
       next_location = last_response.location
-      next_location.must_match /api\/v2\/tutorials\/.+/
+      next_location.must_match /api\/v3\/tutorials\/.+/
 
       # Check if request parameters are stored in ActiveRecord data store
       tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0]
-      delete "/api/v2/tutorials/#{tut_id}"
+      delete "/api/v3/tutorials/#{tut_id}"
       last_response.must_be :ok?
     end
 
-
     it 'should report error if deleting an unknown entry' do
-      delete "/api/v2/tutorials/55555"
+      delete "/api/v3/tutorials/55555"
       last_response.must_be :not_found?
     end
   end
