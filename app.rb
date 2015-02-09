@@ -59,9 +59,10 @@ class CadetDynamo < Sinatra::Base
     "CadetDynamo API v3 is up and running at " +
     "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
-  
+
   show_root = lambda do
-    show_api_v3_root.call
+    "CadetDynamo API v3 is up and running at " +
+    "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
 
   get_cadet_info = lambda do
