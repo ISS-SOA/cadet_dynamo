@@ -43,10 +43,6 @@ class CadetDynamo < Sinatra::Base
     @HOST_WITH_PORT = request.host_with_port
   end
 
-  show_root = lambda do
-    show_api_v3_root.call
-  end
-
   show_api_v1_deprecation = lambda do
     status 400
     "CadetDynamo api/v1 is deprecated: please use " +
@@ -62,6 +58,10 @@ class CadetDynamo < Sinatra::Base
   show_api_v3_root = lambda do
     "CadetDynamo API v3 is up and running at " +
     "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
+  end
+  
+  show_root = lambda do
+    show_api_v3_root.call
   end
 
   get_cadet_info = lambda do
