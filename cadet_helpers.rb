@@ -1,9 +1,6 @@
 require 'json'
 
 module CadetHelpers
-  API_BASE_URI = 'http://cadetdynamo.herokuapp.com/'
-  API_VER = 'api/v2/'
-
   def from_cache?
     cacheing = params['from_cache']
     (cacheing && cacheing.downcase == 'false') ? false : true
@@ -16,7 +13,7 @@ module CadetHelpers
   def enqueue_cadet(username)
     queue = settings.cadet_queue.queues.named(settings.cadet_queue_name)
 
-    cadet_url = URI.join('http://'+@HOST_WITH_PORT+'/', API_VER,
+    cadet_url = URI.join('http://'+@HOST_WITH_PORT+'/', "api/#{@ver}/",
                           'cadet/', "#{username}.json?from_cache=false")
     message = { username: username, url: cadet_url }
     result = queue.send_message(message.to_json)
@@ -80,6 +77,28 @@ module CadetHelpers
     tutorial.description = req['description']
     tutorial.usernames = req['usernames'].to_json
     tutorial.badges = req['badges'].to_json
+    tutorial
+  end
+
+  def get_update_tutorial_json(id)
+    begin
+      tutorial = Tutorial.find(id)
+    rescue
+      halt 404
+    end
+
+    begin
+      usernames = JSON.parse(tutorial.usernames)
+      badges = JSON.parse(tutorial.badges)
+
+      results = check_badges(usernames, badges)
+      tutorial.missing = results[:missing].to_json
+      tutorial.completed = results[:completed].to_json
+      tutorial.save
+    rescue
+      halt 400
+    end
+
     tutorial
   end
 end
