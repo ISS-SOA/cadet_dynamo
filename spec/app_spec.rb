@@ -34,21 +34,21 @@ describe 'CadetDynamo Stories' do
     end
   end
 
-  describe 'Checking multiple users' do
+  describe 'Checking group of users' do
     before do
       Tutorial.delete_all
     end
 
     it 'should find missing badges' do
-      header = { 'CONTENT_TYPE' => 'application/json' }
-      body = {
+      valid_header = { 'CONTENT_TYPE' => 'application/json' }
+      valid_body = {
         description: 'Check valid users and badges',
         usernames: ['soumya.ray', 'chenlizhan'],
         badges: ['Object-Oriented Programming II']
       }
 
       # Check redirect URL from post request
-      post '/api/v2/tutorials', body.to_json, header
+      post '/api/v2/tutorials', valid_body.to_json, valid_header
       last_response.must_be :redirect?
       next_location = last_response.location
       next_location.must_match /api\/v2\/tutorials\/.+/
@@ -56,12 +56,16 @@ describe 'CadetDynamo Stories' do
       # Check if request parameters are stored in ActiveRecord data store
       tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0]
       saved_tutorial = Tutorial.find(tut_id)
-      JSON.parse(saved_tutorial.usernames).must_equal body[:usernames]
-      JSON.parse(saved_tutorial.badges).must_include body[:badges][0]
+      JSON.parse(saved_tutorial.usernames).must_equal valid_body[:usernames]
+      JSON.parse(saved_tutorial.badges).must_include valid_body[:badges][0]
 
       # Check if redirect works
       follow_redirect!
       last_request.url.must_match /api\/v2\/tutorials\/.+/
+
+      # Check if correct results returned
+      results = JSON.parse last_response.body
+      results['soumya.ray'].must_equal valid_body[:badges]
     end
 
     it 'should return 404 for unknown users' do
