@@ -2,10 +2,10 @@
 [![Codeship Status for ISS-SOA/cadet_dynamo](https://codeship.com/projects/55bae420-8357-0132-6ce1-366b1854f7f3/status?branch=master)](https://codeship.com/projects/58109)
 [![Stack Share](http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](http://stackshare.io/soumyaray/cadetdynamo)
 
-An API web service for accessing Codecademy data (uses DynamoDB for storage)
+An API web service for accessing Codecademy data
 
 ## HTTP Routes
-### API v2 Routes:
+### API v3 Routes:
 - GET /
   - returns OK status to indicate service is alive
 - GET /api/v3/cadet/<username>.json
@@ -36,7 +36,7 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
   - optional URL parameter: 'from_cache'
       - true (default): read first from cache, else scrape + encache + enqueue
       - false: scrape + encache
-  - returns body: json of missing badges
+      - returns body: json of description, username, badges, missing badges, completed badges
   - returns status code:
     - 200 for success
     - 404 for resource not found
@@ -55,6 +55,19 @@ An API web service for accessing Codecademy data (uses DynamoDB for storage)
     - 200 for success
     - 400 for malformed JSON body elements
     - 500 for save errors
+
+### API v2 Routes:
+Same as v3 routes except where noted
+- GET /api/v2/
+  - return deprecation warning
+  - status 200
+- GET /api/v2/cadet/<username>.json
+- GET /api/v2/tutorials
+- POST /api/v2/tutorials
+- GET /api/v2/tutorials/:id
+  - returns body: json of missing badges
+- DELETE /api/v2/tutorials/:id
+- POST /api/v2/subscriber
 
 ### API v1 Routes:
 - GET /*
