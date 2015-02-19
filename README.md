@@ -23,7 +23,8 @@ An API web service for accessing Codecademy data
     - 400 for processing error
 - POST /api/v3/tutorials
   - record tutorial request to DB
-    - description (string)
+    - description (string) - optional
+    - deadline (string date) - optional
     - usernames (json array)
     - badges (json array)
   - returns status code:
