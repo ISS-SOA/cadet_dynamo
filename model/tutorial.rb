@@ -3,6 +3,7 @@ require 'json'
 
 class Tutorial < AWS::Record::HashModel
   string_attr :description
+  string_attr :deadline
   string_attr :usernames
   string_attr :badges
   string_attr :completed

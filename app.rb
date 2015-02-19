@@ -117,6 +117,7 @@ class CadetDynamo < Sinatra::Base
     content_type :json
     tut = get_update_tutorial_json(params[:id])
     { description: tut.description,
+      deadline:    tut.deadline,
       usernames:   JSON[tut.usernames],
       badges:      JSON[tut.badges],
       completed:   JSON[tut.completed],
