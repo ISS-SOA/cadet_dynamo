@@ -1,5 +1,8 @@
 require 'json'
 
+require 'active_support'
+require 'active_support/core_ext'
+
 module CadetHelpers
   def from_cache?
     cacheing = params['from_cache']
@@ -64,7 +67,6 @@ module CadetHelpers
     completed, missing = {}, {}
     usernames.each do |username|
       completed[username] = get_badges(username)
-      # missing[username] = badges.reject { |badge| completed[username].keys.include? badge }
       missing[username] = badges - completed[username].keys
     end
     {missing: missing, completed: completed}
@@ -75,6 +77,7 @@ module CadetHelpers
   def new_tutorial(req)
     tutorial = Tutorial.new
     tutorial.description = req['description']
+    tutorial.deadline = req['deadline'].try {|deadline| Date.parse deadline}
     tutorial.usernames = req['usernames'].to_json
     tutorial.badges = req['badges'].to_json
     tutorial

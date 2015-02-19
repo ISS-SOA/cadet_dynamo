@@ -23,7 +23,8 @@ An API web service for accessing Codecademy data
     - 400 for processing error
 - POST /api/v3/tutorials
   - record tutorial request to DB
-    - description (string)
+    - description (string) - optional
+    - deadline (string date) - optional
     - usernames (json array)
     - badges (json array)
   - returns status code:
@@ -46,15 +47,6 @@ An API web service for accessing Codecademy data
   - returns status code:
     - 200 for success
     - 404 for failure (not found)
-- POST /api/v3/subscriber
-  - record tutorial request to DB
-    - description (string)
-    - usernames (json array)
-    - badges (json array)
-  - returns status code:
-    - 200 for success
-    - 400 for malformed JSON body elements
-    - 500 for save errors
 
 ### API v2 Routes:
 Same as v3 routes except where noted
@@ -67,7 +59,6 @@ Same as v3 routes except where noted
 - GET /api/v2/tutorials/:id
   - returns body: json of missing badges
 - DELETE /api/v2/tutorials/:id
-- POST /api/v2/subscriber
 
 ### API v1 Routes:
 - GET /*

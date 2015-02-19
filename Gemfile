@@ -8,6 +8,8 @@ gem 'sinatra-contrib'
 gem 'codebadges'
 gem 'json'
 
+gem 'activesupport'
+
 # gems requiring credentials for 3rd party services
 gem 'config_env'
 gem 'aws-sdk'       # DynamoDB, SQS Message Queue
