@@ -121,7 +121,9 @@ class CadetDynamo < Sinatra::Base
       usernames:   JSON[tut.usernames],
       badges:      JSON[tut.badges],
       completed:   JSON[tut.completed],
-      missing:     JSON[tut.missing] }.to_json
+      missing:     JSON[tut.missing],
+      late:        JSON[tut.late]
+    }.to_json
   end
 
   capture_api_ver = lambda do |ver|

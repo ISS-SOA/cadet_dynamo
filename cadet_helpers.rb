@@ -100,8 +100,9 @@ module CadetHelpers
       badges = JSON.parse(tutorial.badges)
 
       results = check_badges(usernames, badges, tutorial.deadline)
-      tutorial.missing = results[:missing].to_json
       tutorial.completed = results[:completed].to_json
+      tutorial.missing = results[:missing].to_json
+      tutorial.late = results[:late].to_json
       tutorial.save
     rescue
       halt 400
