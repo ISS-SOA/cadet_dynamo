@@ -9,10 +9,15 @@ An API web service for accessing Codecademy data
 - GET /
   - returns OK status to indicate service is alive
 - GET /api/v3/cadet/<username>.json
-  - optional URL parameter: 'from_cache'
-    - true (default): read first from cache, else scrape + encache + enqueue
-    - false: scrape + encache
-  - returns JSON body of user info: id (name), type, badges
+  - optional URL parameters:
+    - deadline: date to identify late badge completions
+    - from_cache:
+      - true (default): read first from cache, else scrape + encache + enqueue
+      - false: scrape + encache
+  - returns JSON body:
+    - completed: {username: {badge: date, ... } }
+    - late: {username: {badge: date, ... } }
+    - missing: {username: [badges]}
   - returns status code:
     - 200 for success
     - 404 for user not found
