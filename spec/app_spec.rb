@@ -39,34 +39,60 @@ describe 'CadetDynamo Stories' do
       Tutorial.delete_all
     end
 
-    it 'should find missing badges' do
-      valid_header = { 'CONTENT_TYPE' => 'application/json' }
+    it 'should find missing badges with all params given' do
+      tutorials_url = '/api/v3/tutorials'
+      header = { 'CONTENT_TYPE' => 'application/json' }
       valid_body = {
         description: 'Check valid users and badges',
+        deadline: Date.today.to_s,
         usernames: ['soumya.ray', 'chenlizhan'],
         badges: ['Object-Oriented Programming II']
       }
 
-      # Check redirect URL from post request
-      post '/api/v3/tutorials', valid_body.to_json, valid_header
-      last_response.must_be :redirect?
-      next_location = last_response.location
-      next_location.must_match /api\/v3\/tutorials\/.+/
+      next_url = check_tutorial_redirect_url(tutorials_url, header, valid_body)
+      check_tutorial_request_params(next_url, tutorials_url, valid_body)
+      results = get_tutorial_redirect_results
 
-      # Check if request parameters are stored in ActiveRecord data store
-      tut_id = next_location.scan(/tutorials\/(.+)/).flatten[0]
-      saved_tutorial = Tutorial.find(tut_id)
-      JSON.parse(saved_tutorial.usernames).must_equal valid_body[:usernames]
-      JSON.parse(saved_tutorial.badges).must_include valid_body[:badges][0]
-
-      # Check if redirect works
-      follow_redirect!
-      last_request.url.must_match /api\/v3\/tutorials\/.+/
-      # puts "URL: #{last_request.url}"
-      # puts "BODY: #{last_response.body}"
-      # Check if correct results returned
-      results = JSON.parse last_response.body
       results['missing']['soumya.ray'].must_equal valid_body[:badges]
+      results['late']['soumya.ray'].must_be_empty
+      results['late']['chenlizhan'].must_be_empty
+      Date.parse(results['deadline']).must_equal Date.today
+    end
+
+    it 'should find missing badges with optional params missing' do
+      tutorials_url = '/api/v3/tutorials'
+      header = { 'CONTENT_TYPE' => 'application/json' }
+      partial_body = {
+        usernames: ['soumya.ray', 'chenlizhan'],
+        badges: ['Object-Oriented Programming II']
+      }
+
+      next_url = check_tutorial_redirect_url(tutorials_url, header, partial_body)
+      check_tutorial_request_params(next_url, tutorials_url, partial_body)
+      results = get_tutorial_redirect_results
+
+      results['missing']['soumya.ray'].must_equal partial_body[:badges]
+      results['description'].must_be_nil
+      results['deadline'].must_be_nil
+    end
+
+    it 'should find late badges with all params given' do
+      tutorials_url = '/api/v3/tutorials'
+      header = { 'CONTENT_TYPE' => 'application/json' }
+      valid_body = {
+        description: 'Check valid users and badges',
+        deadline: Date.parse('July 15, 2014'),
+        usernames: ['soumya.ray', 'chenlizhan'],
+        badges: ['Sorting Your Friends', '100 Exercises']
+      }
+
+      next_url = check_tutorial_redirect_url(tutorials_url, header, valid_body)
+      check_tutorial_request_params(next_url, tutorials_url, valid_body)
+      results = get_tutorial_redirect_results
+
+      results['late']['chenlizhan'].count.must_equal 2
+      results['late']['soumya.ray'].must_be_empty
+      Date.parse(results['deadline']).must_equal valid_body[:deadline]
     end
 
     it 'should return 404 for unknown users' do

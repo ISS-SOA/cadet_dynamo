@@ -1,5 +1,8 @@
 require 'json'
 
+require 'active_support'
+require 'active_support/core_ext'
+
 module CadetHelpers
   def from_cache?
     cacheing = params['from_cache']
@@ -60,14 +63,18 @@ module CadetHelpers
     nil
   end
 
-  def check_badges(usernames, badges)
-    completed, missing = {}, {}
+  def check_badges(usernames, badges, deadline)
+    completed, missing, late = {}, {}, {}
     usernames.each do |username|
       completed[username] = get_badges(username)
-      # missing[username] = badges.reject { |badge| completed[username].keys.include? badge }
       missing[username] = badges - completed[username].keys
+      if deadline
+        late[username] = completed[username].select do |badge, date_completed|
+          (badges.include? badge) && (date_completed > deadline)
+        end
+      end
     end
-    {missing: missing, completed: completed}
+    {missing: missing, completed: completed, late: late}
   rescue
     halt 404
   end
@@ -75,6 +82,7 @@ module CadetHelpers
   def new_tutorial(req)
     tutorial = Tutorial.new
     tutorial.description = req['description']
+    tutorial.deadline = req['deadline'].try {|deadline| Date.parse deadline}
     tutorial.usernames = req['usernames'].to_json
     tutorial.badges = req['badges'].to_json
     tutorial
@@ -91,9 +99,10 @@ module CadetHelpers
       usernames = JSON.parse(tutorial.usernames)
       badges = JSON.parse(tutorial.badges)
 
-      results = check_badges(usernames, badges)
-      tutorial.missing = results[:missing].to_json
+      results = check_badges(usernames, badges, tutorial.deadline)
       tutorial.completed = results[:completed].to_json
+      tutorial.missing = results[:missing].to_json
+      tutorial.late = results[:late].to_json
       tutorial.save
     rescue
       halt 400

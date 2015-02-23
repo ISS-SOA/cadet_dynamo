@@ -9,10 +9,15 @@ An API web service for accessing Codecademy data
 - GET /
   - returns OK status to indicate service is alive
 - GET /api/v3/cadet/<username>.json
-  - optional URL parameter: 'from_cache'
-    - true (default): read first from cache, else scrape + encache + enqueue
-    - false: scrape + encache
-  - returns JSON body of user info: id (name), type, badges
+  - optional URL parameters:
+    - deadline: date to identify late badge completions
+    - from_cache:
+      - true (default): read first from cache, else scrape + encache + enqueue
+      - false: scrape + encache
+  - returns JSON body:
+    - completed: {username: {badge: date, ... } }
+    - late: {username: {badge: date, ... } }
+    - missing: {username: [badges]}
   - returns status code:
     - 200 for success
     - 404 for user not found
@@ -23,7 +28,8 @@ An API web service for accessing Codecademy data
     - 400 for processing error
 - POST /api/v3/tutorials
   - record tutorial request to DB
-    - description (string)
+    - description (string) - optional
+    - deadline (string date) - optional
     - usernames (json array)
     - badges (json array)
   - returns status code:
@@ -46,15 +52,6 @@ An API web service for accessing Codecademy data
   - returns status code:
     - 200 for success
     - 404 for failure (not found)
-- POST /api/v3/subscriber
-  - record tutorial request to DB
-    - description (string)
-    - usernames (json array)
-    - badges (json array)
-  - returns status code:
-    - 200 for success
-    - 400 for malformed JSON body elements
-    - 500 for save errors
 
 ### API v2 Routes:
 Same as v3 routes except where noted
@@ -67,7 +64,6 @@ Same as v3 routes except where noted
 - GET /api/v2/tutorials/:id
   - returns body: json of missing badges
 - DELETE /api/v2/tutorials/:id
-- POST /api/v2/subscriber
 
 ### API v1 Routes:
 - GET /*
