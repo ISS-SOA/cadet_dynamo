@@ -142,14 +142,14 @@ class CadetDynamo < Sinatra::Base
   get '/api/v2/?', &show_api_v2_root
   get '/api/v2/cadet/:username.json', &get_cadet_info
   get '/api/v2/tutorials/?', &get_tutorial_index
+  get '/api/v2/tutorials/:id', &get_tutorial_v2
   post '/api/v2/tutorials', &create_tutorial_query
   delete '/api/v2/tutorials/:id', &delete_cadet
-  get '/api/v2/tutorials/:id', &get_tutorial_v2
 
   get '/api/v3/?', &show_api_v3_root
   get '/api/v3/cadet/:username.json', &get_cadet_info
   get '/api/v3/tutorials/?', &get_tutorial_index
+  get '/api/v3/tutorials/:id', &get_tutorial_v3
   post '/api/v3/tutorials', &create_tutorial_query
   delete '/api/v3/tutorials/:id', &delete_cadet
-  get '/api/v3/tutorials/:id', &get_tutorial_v3
 end

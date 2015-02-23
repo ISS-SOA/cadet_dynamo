@@ -63,13 +63,18 @@ module CadetHelpers
     nil
   end
 
-  def check_badges(usernames, badges)
-    completed, missing = {}, {}
+  def check_badges(usernames, badges, deadline)
+    completed, missing, late = {}, {}, {}
     usernames.each do |username|
       completed[username] = get_badges(username)
       missing[username] = badges - completed[username].keys
+      if deadline
+        late[username] = completed[username].select do |badge, date_completed|
+          (badges.include? badge) && (date_completed > deadline)
+        end
+      end
     end
-    {missing: missing, completed: completed}
+    {missing: missing, completed: completed, late: late}
   rescue
     halt 404
   end
@@ -94,7 +99,7 @@ module CadetHelpers
       usernames = JSON.parse(tutorial.usernames)
       badges = JSON.parse(tutorial.badges)
 
-      results = check_badges(usernames, badges)
+      results = check_badges(usernames, badges, tutorial.deadline)
       tutorial.missing = results[:missing].to_json
       tutorial.completed = results[:completed].to_json
       tutorial.save
