@@ -29,7 +29,7 @@ class CadetDynamo < Sinatra::Base
         :socket_timeout => 1.5,
         :socket_failure_delay => 0.2
         })
-    set :cadet_cache_ttl, 86_400    # 24hrs
+    set :cadet_cache_ttl, 1.day    # 24hrs
 
     set :cadet_queue, AWS::SQS.new(region: ENV['AWS_REGION'])
     set :cadet_queue_name, 'RecentCadet'
