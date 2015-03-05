@@ -12,8 +12,8 @@ gem 'activesupport'
 
 # gems requiring credentials for 3rd party services
 gem 'config_env'
-gem 'aws-sdk'       # DynamoDB, SQS Message Queue
-gem 'dalli'         # Memcachier
+gem 'aws-sdk', '< 2.0'    # DynamoDB, SQS Message Queue
+gem 'dalli'               # Memcachier
 
 group :test do
   gem 'minitest'
