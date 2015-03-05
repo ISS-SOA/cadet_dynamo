@@ -16,6 +16,6 @@ class Tutorial < AWS::Record::HashModel
   end
 
   def self.delete_all
-    all.each { |r| r.delete }
+    all.each(&:delete)
   end
 end

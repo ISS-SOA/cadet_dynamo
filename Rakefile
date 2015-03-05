@@ -1,6 +1,7 @@
 require 'rake/testtask'
 require 'config_env/rake_tasks'
 
+desc "Echo to stdout an environment variable"
 task :echo_env, [:var] => :config do |t, args|
   puts "#{args[:var]}: #{ENV[args[:var]]}"
 end
@@ -15,6 +16,7 @@ task :config do
 end
 
 namespace :deploy do
+  desc "Setup Heroku, DynamoDB, SQS, and deploy to Heroku"
   task :production do
     ENV['RACK_ENV'] = 'production'
     Rake::Task['deploy:resources'].invoke
