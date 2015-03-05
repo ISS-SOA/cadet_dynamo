@@ -17,7 +17,7 @@ module CadetHelpers
     queue = settings.cadet_queue.queues.named(settings.cadet_queue_name)
 
     cadet_url = URI.join('http://'+@HOST_WITH_PORT+'/', "api/#{@ver}/",
-                          'cadet/', "#{username}.json?from_cache=false")
+                          'cadet/', "#{username}.json?from_cache=false").to_s
     message = { username: username, url: cadet_url }
     result = queue.send_message(message.to_json)
   rescue => e
@@ -25,7 +25,7 @@ module CadetHelpers
   end
 
   def encache_cadet(username, badges)
-    settings.cadet_cache.set username, badges
+    settings.cadet_cache.set(username, badges, ttl=settings.cadet_cache_ttl)
   rescue => e
     logger.info "ENCACHE_CADET failed: #{e}"
   end
