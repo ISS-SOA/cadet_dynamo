@@ -9,6 +9,7 @@ gem 'codebadges'
 gem 'json'
 
 gem 'activesupport'
+gem 'concurrent-ruby-ext'
 
 # gems requiring credentials for 3rd party services
 gem 'config_env'
@@ -20,4 +21,8 @@ group :test do
   gem 'rack'
   gem 'rack-test'
   gem 'rake'
+end
+
+group :development do
+  gem 'tux'
 end

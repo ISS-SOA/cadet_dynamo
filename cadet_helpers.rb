@@ -3,6 +3,8 @@ require 'json'
 require 'active_support'
 require 'active_support/core_ext'
 
+require 'concurrent'
+
 module CadetHelpers
   def from_cache?
     cacheing = params['from_cache']
@@ -65,18 +67,31 @@ module CadetHelpers
 
   def check_badges(usernames, badges, deadline)
     completed, missing, late = {}, {}, {}
+    notfound = []
+
+    threads = Concurrent::CachedThreadPool.new
     usernames.each do |username|
-      completed[username] = get_badges(username)
-      missing[username] = badges - completed[username].keys
-      if deadline
-        late[username] = completed[username].select do |badge, date_completed|
-          (badges.include? badge) && (date_completed > deadline)
+      threads.post do
+        begin
+          completed[username] = get_badges(username)
+          missing[username] = badges - completed[username].keys
+          if deadline
+            late[username] = completed[username].select do |badge, date_completed|
+              (badges.include? badge) && (date_completed > deadline)
+            end
+          end
+        rescue
+          notfound << username
+          status 202
         end
       end
     end
-    {missing: missing, completed: completed, late: late}
-  rescue
-    halt 404
+    threads.shutdown
+    threads.wait_for_termination
+
+    {missing: missing, completed: completed, late: late, notfound: notfound}
+  rescue => e
+    halt "#{e}"
   end
 
   def new_tutorial(req)
@@ -103,6 +118,7 @@ module CadetHelpers
       tutorial.completed = results[:completed].to_json
       tutorial.missing = results[:missing].to_json
       tutorial.late = results[:late].to_json
+      tutorial.notfound = results[:notfound].to_json
       tutorial.save
     rescue
       halt 400

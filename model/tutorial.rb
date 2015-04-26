@@ -9,6 +9,7 @@ class Tutorial < AWS::Record::HashModel
   string_attr :completed
   string_attr :missing
   string_attr :late
+  string_attr :notfound
   timestamps
 
   def self.destroy(id)

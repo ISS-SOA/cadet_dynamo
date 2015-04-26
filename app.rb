@@ -122,7 +122,8 @@ class CadetDynamo < Sinatra::Base
       badges:      JSON[tut.badges],
       completed:   JSON[tut.completed],
       missing:     JSON[tut.missing],
-      late:        JSON[tut.late]
+      late:        JSON[tut.late],
+      notfound:    JSON[tut.notfound]
     }.to_json
   end
 
