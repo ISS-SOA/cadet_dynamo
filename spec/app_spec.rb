@@ -95,7 +95,7 @@ describe 'CadetDynamo Stories' do
       Date.parse(results['deadline']).must_equal valid_body[:deadline]
     end
 
-    it 'should return 404 for unknown users' do
+    it 'should return 202 for unknown users' do
       header = { 'CONTENT_TYPE' => 'application/json' }
       body = {
         description: 'Check invalid users and invalid badges',
@@ -107,7 +107,8 @@ describe 'CadetDynamo Stories' do
 
       last_response.must_be :redirect?
       follow_redirect!
-      last_response.must_be :not_found?
+      last_response.status.must_equal 202
+      # TODO : check notfound users
     end
 
     it 'should return 400 for bad JSON formatting' do
