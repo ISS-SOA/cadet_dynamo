@@ -1,47 +1,18 @@
 require 'codebadges'
 
 class GetCadetBadges
-  def call(params, settings)
+  def call(username, params, settings)
+    return nil unless username
+
     @params = params
     @settings = settings
-    return nil unless username = @params[:username]
     badges = get_badges(username).map do |title, date|
-      {'id' => title, 'date' => date}
-    end
+      # {'id' => title, 'date' => date}
+      [title, date]
+    end.to_h
     { 'id' => username, 'type' => 'cadet', 'badges' => badges }
   rescue
     nil
-  end
-
-  def check_badges(usernames, badges, deadline, params, settings)
-    @params = params
-    @settings = settings
-
-    completed, missing, late = {}, {}, {}
-    notfound = []
-
-    threads = Concurrent::CachedThreadPool.new
-    usernames.each do |username|
-      threads.post do
-        begin
-          completed[username] = get_badges(username)
-          missing[username] = badges - completed[username].keys
-          if deadline
-            late[username] = completed[username].select do |badge, date_completed|
-              (badges.include? badge) && (date_completed > deadline)
-            end
-          end
-        rescue
-          notfound << username
-        end
-      end
-    end
-    threads.shutdown
-    threads.wait_for_termination
-
-    {missing: missing, completed: completed, late: late, notfound: notfound}
-  rescue => e
-    halt "#{e}"
   end
 
   private

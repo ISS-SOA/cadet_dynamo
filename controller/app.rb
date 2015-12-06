@@ -1,5 +1,6 @@
 require_relative 'cadet_helpers'
 require_relative '../services/get_cadet_badges'
+require_relative '../services/check_multiple_cadets'
 
 ##
 # Fork of CadetService, using DynamoDB instead of Postgres
@@ -14,19 +15,21 @@ class CadetDynamo < Sinatra::Base
     "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
 
-  show_api_v3_root = lambda do
-    "CadetDynamo API v3 is up and running at " +
-    "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
-  end
-
   show_root = lambda do
     "CadetDynamo API v3 is up and running at " +
     "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
 
+  show_api_root = lambda do
+    "CadetDynamo API v3 is up and running at " +
+    "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
+  end
+
+
   get_cadet_info = lambda do
     content_type :json
-    badges = GetCadetBadges.new.call(params, settings)
+    username = params[:username]
+    badges = GetCadetBadges.new.call(username, params, settings)
     badges.nil? ? halt(404) : badges.to_json
   end
 
@@ -67,7 +70,7 @@ class CadetDynamo < Sinatra::Base
     end
   end
 
-  get_tutorial_v3 = lambda do
+  get_tutorial = lambda do
     content_type :json
     tut = get_update_tutorial_json(params[:id])
     { description: tut.description,
@@ -97,10 +100,10 @@ class CadetDynamo < Sinatra::Base
   get '/api/v1/?*', &show_old_version_deprecation
   get '/api/v2/?', &show_old_version_deprecation
 
-  get '/api/v3/?', &show_api_v3_root
+  get '/api/v3/?', &show_api_root
   get '/api/v3/cadet/:username.json', &get_cadet_info
   get '/api/v3/tutorials/?', &get_tutorial_index
-  get '/api/v3/tutorials/:id', &get_tutorial_v3
+  get '/api/v3/tutorials/:id', &get_tutorial
   post '/api/v3/tutorials', &create_tutorial_query
   delete '/api/v3/tutorials/:id', &delete_cadet
 end

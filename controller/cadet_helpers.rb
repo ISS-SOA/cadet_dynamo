@@ -22,14 +22,15 @@ module CadetHelpers
       usernames = JSON.parse(tutorial.usernames)
       badges = JSON.parse(tutorial.badges)
 
-      results = GetCadetBadges.new.check_badges(usernames, badges, tutorial.deadline, params, settings)
+      results = CheckMultipleCadets.new.call(usernames, badges, tutorial.deadline, params, settings)
       tutorial.completed = results[:completed].to_json
       tutorial.missing = results[:missing].to_json
       tutorial.late = results[:late].to_json
       tutorial.notfound = results[:notfound].to_json
       tutorial.save
       status(tutorial.notfound.empty? ? 200 : 202)
-    rescue
+    rescue => e
+      puts "#{e}"
       halt 400
     end
 

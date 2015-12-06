@@ -89,6 +89,7 @@ describe 'CadetDynamo Stories' do
       next_url = check_tutorial_redirect_url(tutorials_url, header, valid_body)
       check_tutorial_request_params(next_url, tutorials_url, valid_body)
       results = get_tutorial_redirect_results
+      puts "---------> LATERESULTS: #{results}"
 
       results['late']['chenlizhan'].count.must_equal 2
       results['late']['soumya.ray'].must_be_empty
