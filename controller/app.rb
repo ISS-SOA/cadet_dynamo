@@ -8,14 +8,9 @@ require_relative 'cadet_helpers'
 class CadetDynamo < Sinatra::Base
   helpers CadetHelpers
 
-  show_api_v1_deprecation = lambda do
+  show_old_version_deprecation = lambda do
     status 400
-    "CadetDynamo api/v1 is deprecated: please use " +
-    "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
-  end
-
-  show_api_v2_root = lambda do
-    "CadetDynamo api/v2 is deprecated: please use " +
+    "Version #{@ver} of CadetDynamo API is deprecated: please use " +
     "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
 
@@ -99,8 +94,8 @@ class CadetDynamo < Sinatra::Base
   post %r{/api/(v\d)/*}, &capture_api_ver
   delete %r{/api/(v\d)/*}, &capture_api_ver
 
-  get '/api/v1/?*', &show_api_v1_deprecation
-  get '/api/v2/?', &show_api_v2_root
+  get '/api/v1/?*', &show_old_version_deprecation
+  get '/api/v2/?', &show_old_version_deprecation
 
   get '/api/v3/?', &show_api_v3_root
   get '/api/v3/cadet/:username.json', &get_cadet_info
