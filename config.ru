@@ -1,2 +1,5 @@
-Dir.glob('./{config,model,services,controller}/init.rb').each { |file| require file}
+Dir.glob('./{config,models,services,controllers}/init.rb').each do |file|
+  require file
+end
+
 run CadetDynamo

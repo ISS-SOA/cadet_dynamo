@@ -49,7 +49,7 @@ namespace :queue do
 end
 
 namespace :db do
-  require_relative 'model/tutorial.rb'
+  require_relative 'models/init.rb'
   require_relative 'config/init.rb'
 
   desc "Create tutorial table"

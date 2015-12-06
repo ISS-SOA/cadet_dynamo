@@ -1,6 +1,6 @@
 require_relative 'cadet_helpers'
-require_relative '../services/get_cadet_badges'
-require_relative '../services/check_multiple_cadets'
+# require_relative '../services/get_cadet_badges'
+# require_relative '../services/check_multiple_cadets'
 
 ##
 # Fork of CadetService, using DynamoDB instead of Postgres
@@ -24,7 +24,6 @@ class CadetDynamo < Sinatra::Base
     "CadetDynamo API v3 is up and running at " +
     "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
-
 
   get_cadet_info = lambda do
     content_type :json
