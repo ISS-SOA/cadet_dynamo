@@ -1,5 +1,5 @@
-require 'codebadges'
 require_relative 'cadet_helpers'
+require_relative '../services/get_cadet_badges'
 
 ##
 # Fork of CadetService, using DynamoDB instead of Postgres
@@ -26,7 +26,7 @@ class CadetDynamo < Sinatra::Base
 
   get_cadet_info = lambda do
     content_type :json
-    badges = get_user_badges
+    badges = GetCadetBadges.new.call(params, settings)
     badges.nil? ? halt(404) : badges.to_json
   end
 
