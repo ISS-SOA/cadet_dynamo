@@ -1,5 +1,5 @@
 source 'http://rubygems.org'
-ruby '2.2.0'
+ruby '2.2.3'
 
 # gems for internal operations
 gem 'thin'
@@ -8,12 +8,13 @@ gem 'sinatra-contrib'
 gem 'codebadges'
 gem 'json'
 
+gem 'dynamoid', '~> 1'
 gem 'activesupport'
 gem 'concurrent-ruby-ext'
 
 # gems requiring credentials for 3rd party services
 gem 'config_env'
-gem 'aws-sdk', '< 2.0'    # DynamoDB, SQS Message Queue
+gem 'aws-sdk', '~> 2'     # DynamoDB (Dynamoid), SQS Message Queue
 gem 'dalli'               # Memcachier
 
 group :test do

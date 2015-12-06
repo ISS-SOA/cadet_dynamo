@@ -1,19 +1,18 @@
-require 'aws-sdk'
-require 'json'
+require 'dynamoid'
 
-class Tutorial < AWS::Record::HashModel
-  string_attr :description
-  date_attr :deadline
-  string_attr :usernames
-  string_attr :badges
-  string_attr :completed
-  string_attr :missing
-  string_attr :late
-  string_attr :notfound
-  timestamps
+class Tutorial
+  include Dynamoid::Document
+  field :description, :string
+  field :deadline, :datetime
+  field :usernames, :string
+  field :badges, :string
+  field :completed, :string
+  field :missing, :string
+  field :late, :string
+  field :notfound, :string
 
   def self.destroy(id)
-    find(id).delete
+    find(id).destroy
   end
 
   def self.delete_all

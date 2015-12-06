@@ -4,6 +4,7 @@ require 'aws-sdk'
 require 'sinatra/base'
 require 'codebadges'
 require_relative 'cadet_helpers'
+require_relative 'config/init.rb'
 require_relative 'model/tutorial'
 
 ##
@@ -31,7 +32,7 @@ class CadetDynamo < Sinatra::Base
         })
     set :cadet_cache_ttl, 1.day    # 24hrs
 
-    set :cadet_queue, AWS::SQS.new(region: ENV['AWS_REGION'])
+    set :cadet_queue, Aws::SQS::Client.new(region: ENV['AWS_REGION'])
     set :cadet_queue_name, 'RecentCadet'
   end
 
@@ -50,8 +51,7 @@ class CadetDynamo < Sinatra::Base
   end
 
   show_api_v2_root = lambda do
-    "CadetDynamo /api/v2 is up and working, but is deprecated. " +
-    "It is no longer tested. Please use: " +
+    "CadetDynamo api/v2 is deprecated: please use " +
     "<a href=\"/api/v3/\">#{request.host}/api/v3/</a>"
   end
 
@@ -108,11 +108,6 @@ class CadetDynamo < Sinatra::Base
     end
   end
 
-  get_tutorial_v2 = lambda do
-    content_type :json
-    get_update_tutorial_json(params[:id]).missing
-  end
-
   get_tutorial_v3 = lambda do
     content_type :json
     tut = get_update_tutorial_json(params[:id])
@@ -141,13 +136,7 @@ class CadetDynamo < Sinatra::Base
   delete %r{/api/(v\d)/*}, &capture_api_ver
 
   get '/api/v1/?*', &show_api_v1_deprecation
-
   get '/api/v2/?', &show_api_v2_root
-  get '/api/v2/cadet/:username.json', &get_cadet_info
-  get '/api/v2/tutorials/?', &get_tutorial_index
-  get '/api/v2/tutorials/:id', &get_tutorial_v2
-  post '/api/v2/tutorials', &create_tutorial_query
-  delete '/api/v2/tutorials/:id', &delete_cadet
 
   get '/api/v3/?', &show_api_v3_root
   get '/api/v3/cadet/:username.json', &get_cadet_info

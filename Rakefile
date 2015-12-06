@@ -37,7 +37,7 @@ namespace :queue do
 
   desc "Create all queues"
   task :create do
-    sqs = AWS::SQS.new(region: ENV['AWS_REGION'])
+    sqs = Aws::SQS::Client.new(region: ENV['AWS_REGION'])
 
     begin
       queue = sqs.queues.create('RecentCadet')
@@ -50,13 +50,14 @@ end
 
 namespace :db do
   require_relative 'model/tutorial.rb'
+  require_relative 'config/init.rb'
 
   desc "Create tutorial table"
   task :migrate do
     begin
-      Tutorial.create_table(5, 6)
+      Tutorial.create_table
       puts 'Tutorial table created'
-    rescue AWS::DynamoDB::Errors::ResourceInUseException => e
+    rescue Aws::DynamoDB::Errors::ResourceInUseException => e
       puts 'Tutorial table already exists'
     end
   end
