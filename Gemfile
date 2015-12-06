@@ -8,13 +8,13 @@ gem 'sinatra-contrib'
 gem 'codebadges'
 gem 'json'
 
-gem 'dynamoid', '~> 1'
 gem 'activesupport'
 gem 'concurrent-ruby-ext'
 
 # gems requiring credentials for 3rd party services
 gem 'config_env'
 gem 'aws-sdk', '~> 2'     # DynamoDB (Dynamoid), SQS Message Queue
+gem 'dynamoid', '~> 1'
 gem 'dalli'               # Memcachier
 
 group :test do

@@ -3,17 +3,17 @@ require 'active_support'
 require 'active_support/core_ext'
 
 require 'config_env'
-require 'dalli'
 require 'aws-sdk'
+require 'dalli'
 
 class CadetDynamo < Sinatra::Base
+  configure :development, :test do
+    ConfigEnv.path_to_config("#{__dir__}/../config/config_env.rb")
+  end
+
   configure :development do
     # ignore if not using shotgun in development
     set :session_secret, "fixed secret"
-  end
-
-  configure :development, :test do
-    ConfigEnv.path_to_config("#{__dir__}/../config/config_env.rb")
   end
 
   configure do

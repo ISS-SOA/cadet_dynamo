@@ -1,6 +1,4 @@
 require_relative 'cadet_helpers'
-# require_relative '../services/get_cadet_badges'
-# require_relative '../services/check_multiple_cadets'
 
 ##
 # Fork of CadetService, using DynamoDB instead of Postgres
