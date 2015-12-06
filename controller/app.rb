@@ -1,11 +1,5 @@
-require 'config_env'
-require 'dalli'
-require 'aws-sdk'
-require 'sinatra/base'
 require 'codebadges'
 require_relative 'cadet_helpers'
-require_relative 'config/init.rb'
-require_relative 'model/tutorial'
 
 ##
 # Fork of CadetService, using DynamoDB instead of Postgres
@@ -13,36 +7,6 @@ require_relative 'model/tutorial'
 #   - create ENV vars AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
 class CadetDynamo < Sinatra::Base
   helpers CadetHelpers
-
-  configure :development do
-    # ignore if not using shotgun in development
-    set :session_secret, "fixed secret"
-  end
-
-  configure :development, :test do
-    ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
-  end
-
-  configure do
-    set :cadet_cache, Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
-      {:username => ENV["MEMCACHIER_USERNAME"],
-        :password => ENV["MEMCACHIER_PASSWORD"],
-        :socket_timeout => 1.5,
-        :socket_failure_delay => 0.2
-        })
-    set :cadet_cache_ttl, 1.day    # 24hrs
-
-    set :cadet_queue, Aws::SQS::Client.new(region: ENV['AWS_REGION'])
-    set :cadet_queue_name, 'RecentCadet'
-  end
-
-  configure :production, :development do
-    enable :logging
-  end
-
-  before do
-    @HOST_WITH_PORT = request.host_with_port
-  end
 
   show_api_v1_deprecation = lambda do
     status 400
