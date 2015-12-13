@@ -1,10 +1,19 @@
 require 'codebadges'
 
+class Cacheing
+  attr_reader :required
+  alias_method :required?, :required
+
+  def initialize(http_params)
+    @required = !!(http_params['from_cache'] &&
+                  (http_params['from_cache'].downcase == 'true'))
+  end
+end
+
 class GetCadetBadges
   def call(username, params, settings)
     return nil unless username
-
-    @params = params
+    @cacheing = Cacheing.new(params)
     @settings = settings
     badges = get_badges(username).map do |title, date|
       # {'id' => title, 'date' => date}
@@ -16,11 +25,6 @@ class GetCadetBadges
   end
 
   private
-
-  def from_cache?
-    cacheing = @params['from_cache']
-    (cacheing && cacheing.downcase == 'false') ? false : true
-  end
 
   def scrape_badges(username)
     CodeBadges::CodecademyBadges.get_badges username
@@ -59,7 +63,7 @@ class GetCadetBadges
   end
 
   def get_badges(username)
-    if from_cache?
+    if @cacheing.required?
       get_cached_badges(username)
     else
       scrape_badges(username).tap { |badges| encache_cadet username, badges }
